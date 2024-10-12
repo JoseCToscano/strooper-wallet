@@ -2,19 +2,45 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-    provider = "prisma-client-js"
+  provider = "prisma-client-js"
 }
 
 datasource db {
-    provider = "postgresql"
-    url      = env("DATABASE_URL")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
-model Post {
-    id        Int      @id @default(autoincrement())
-    name      String
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+model Session {
+  id          String   @id @default(uuid()) // Unique session ID
+  userId      String // Associate with user ID
+  expiresAt   DateTime // Optional: session expiration time
+  status      String   @default("pending") // Status: pending, success, failure
+  unsignedXDR String? // Unsigned XDR
+  publicKey   String? // Public key
+}
 
-    @@index([name])
+model User {
+  id                String   @id @default(cuid())
+  telegramId        String   @unique
+  telegramUsername  String?  @unique
+  telegramFirstName String?
+  telegramLastName  String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  wallets           Wallet[] // A user can have multiple wallets
+}
+
+model Wallet {
+  id             String         @id @default(cuid())
+  walletProvider WalletProvider @default(STROOPER)
+  publicKey      String         @unique
+  user           User           @relation(fields: [userId], references: [id])
+  userId         String
+  createdAt      DateTime       @default(now())
+
+  @@index([userId])
+}
+
+enum WalletProvider {
+  STROOPER
 }

@@ -1,53 +1,238 @@
-import Link from "next/link";
+"use client";
+import { useEffect, useState } from "react";
+import { Card, CardContent } from "~/components/ui/card";
+import { Button } from "~/components/ui/button";
+import { Fingerprint, Shield } from "lucide-react";
+import { api } from "~/trpc/react";
+import { Wallet } from "~/app/_components/wallet";
+import { useStrooper } from "~/hooks/useStrooper";
+import { shortStellarAddress } from "~/lib/utils";
+import { SelectWallet } from "~/app/_components/SelectWallet";
 
-import { LatestPost } from "~/app/_components/post";
-import { api, HydrateClient } from "~/trpc/server";
+export default function Home() {
+  const [user, setUser] = useState<WebAppUser | null>(null);
+  const [amount] = useState<number>(Math.floor(Math.random() * 1000) + 1);
+  const [biometricAuthStatus, setBiometricAuthStatus] = useState<string>(
+    "Checking biometrics...",
+  );
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false); // Track authentication status
+  const [authFailed, setAuthFailed] = useState<boolean>(false); // Track if authentication failed
+  const [biometricAttempted, setBiometricAttempted] = useState<boolean>(false); // Track if biometrics were attempted
+  const { setTelegramUserId } = useStrooper();
+  const registerUser = api.telegram.saveUser.useMutation({
+    onSuccess: (data) => {
+      console.log("User registered successfully:", data);
+    },
+    onError: (error) => {
+      console.error("Error registering user:", error);
+    },
+  });
 
-export default async function Home() {
-  const hello = await api.post.hello({ text: "from tRPC" });
+  // Function to dynamically load the Telegram WebApp script if it hasn't been loaded
+  const loadTelegramScript = (): Promise<boolean> => {
+    console.log("called loadTelegramScript");
+    return new Promise<boolean>((resolve, reject) => {
+      // Check if the script is already in the document
+      if (document.getElementById("telegram-web-app-script")) {
+        console.log("Telegram WebApp script is already loaded");
+        return resolve(false); // If the script is already present, resolve immediately
+      }
 
-  void api.post.getLatest.prefetch();
+      // Create and append the script if it doesn't exist
+      const script = document.createElement("script");
+      script.id = "telegram-web-app-script"; // Add an id to track it
+      script.src = "https://telegram.org/js/telegram-web-app.js";
+      script.async = true;
+      script.onload = () => resolve(true);
+      script.onerror = () =>
+        reject(new Error("Failed to load Telegram WebApp script"));
+      document.head.appendChild(script);
+    });
+  };
+
+  useEffect(() => {
+    console.log("Somple console log to watch out on re-renders :)");
+  }, []);
+
+  // Function to handle biometric authentication
+  const authenticate = () => {
+    console.log("Calling authenitcatye");
+    // INIT BIOMETRIC AUTHENTICATION
+    if (window.Telegram?.WebApp) {
+      if (window.Telegram.WebApp.BiometricManager.isInited) {
+        requestBiometrics();
+      } else {
+        window.Telegram.WebApp.BiometricManager.init(() => {
+          requestBiometrics();
+        });
+      }
+    } else {
+      console.log("Telegram not available");
+    }
+  };
+
+  const requestBiometricAccess = (cb: () => void) => {
+    if (!window.Telegram.WebApp.BiometricManager.isAccessGranted) {
+      window.Telegram.WebApp.BiometricManager.requestAccess(
+        {
+          reason:
+            "We require access to Biometric authentication to keep your Wallet data safe",
+        },
+        (isAccessGranted) => {
+          if (isAccessGranted) {
+            console.log("Biometric access granted");
+            cb();
+          } else {
+            window.confirm(
+              "Biometric access denied. Please enable biometric access in settings",
+            ) && window.Telegram.WebApp.BiometricManager.openSettings();
+          }
+        },
+      );
+    }
+  };
+
+  const authenticateWithBiometrics = () => {
+    window.Telegram.WebApp.BiometricManager.authenticate(
+      {
+        reason: "Authenticate to access your account",
+      },
+      (isAuthenticated, biometricToken) => {
+        console.log("Biometric authentication result:", isAuthenticated);
+        if (isAuthenticated) {
+          setIsAuthenticated(true);
+          setBiometricAuthStatus("Biometric authentication successful");
+        } else {
+          setAuthFailed(true);
+          setBiometricAuthStatus("Biometric authentication failed");
+        }
+      },
+    );
+  };
+
+  const requestBiometrics = () => {
+    if (window.Telegram.WebApp.BiometricManager.isBiometricAvailable) {
+      if (window.Telegram.WebApp.BiometricManager.isAccessGranted) {
+        authenticateWithBiometrics();
+      } else {
+        requestBiometricAccess(authenticateWithBiometrics);
+        console.log("Biometric access not granted");
+      }
+    } else {
+      console.log(
+        "Biometric not available",
+        window.Telegram.WebApp.BiometricManager.isAccessRequested,
+      );
+    }
+  };
+
+  useEffect(() => {
+    console.log("Somple console log to watch out on re-renders :)");
+  }, []);
+
+  // UseEffect to dynamically load the Telegram script and then authenticate
+  useEffect(() => {
+    loadTelegramScript()
+      .then((requiresAuth) => {
+        console.log("Telegram script loaded:", requiresAuth);
+        if (requiresAuth) {
+          console.log(
+            "window.Telegram.WebApp.version: ",
+            window.Telegram.WebApp.version,
+          );
+          window.Telegram.WebApp.ready();
+          // Access the user data from Telegram
+          const userData = window.Telegram.WebApp.initDataUnsafe?.user;
+          if (userData) {
+            registerUser.mutate({
+              telegramId: userData.id,
+              username: userData.username,
+              firstName: userData.first_name,
+              lastName: userData.last_name,
+            });
+            setUser(userData);
+            setTelegramUserId(userData.id);
+          }
+          authenticate(); // Trigger initial authentication only once
+        }
+      })
+      .catch((err) => {
+        console.error("Error loading Telegram script:", err);
+      });
+  }, []); // Empty dependency array ensures it runs only once on initial load
+
+  const handleRetry = () => {
+    // Reset states and retry authentication
+    setAuthFailed(false);
+    setBiometricAttempted(false); // Allow re-attempt
+    setBiometricAuthStatus("Retrying biometric authentication...");
+    authenticate(); // Trigger the authentication flow again when the user clicks retry
+  };
+
+  // Function to handle data when returning from the browser
+  // const handlePasskeyReturn = () => {
+  //   const queryParams = new URLSearchParams(window.location.search);
+  //   const status = queryParams.get("status");
+  //
+  //   if (status === "success") {
+  //     console.log("Passkey created successfully!");
+  //     setAuthStatus("Authenticated");
+  //   } else {
+  //     console.log("Passkey creation failed.");
+  //     setAuthStatus("Failed");
+  //   }
+  // };
+
+  if (isAuthenticated) {
+    return <div>Auth content :)</div>;
+  }
 
   return (
-    <HydrateClient>
-      <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-[#2e026d] to-[#15162c] text-white">
-        <div className="container flex flex-col items-center justify-center gap-12 px-4 py-16">
-          <h1 className="text-5xl font-extrabold tracking-tight sm:text-[5rem]">
-            Create <span className="text-[hsl(280,100%,70%)]">T3</span> App
-          </h1>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-8">
-            <Link
-              className="flex max-w-xs flex-col gap-4 rounded-xl bg-white/10 p-4 hover:bg-white/20"
-              href="https://create.t3.gg/en/usage/first-steps"
-              target="_blank"
-            >
-              <h3 className="text-2xl font-bold">First Steps →</h3>
-              <div className="text-lg">
-                Just the basics - Everything you need to know to set up your
-                database and authentication.
-              </div>
-            </Link>
-            <Link
-              className="flex max-w-xs flex-col gap-4 rounded-xl bg-white/10 p-4 hover:bg-white/20"
-              href="https://create.t3.gg/en/introduction"
-              target="_blank"
-            >
-              <h3 className="text-2xl font-bold">Documentation →</h3>
-              <div className="text-lg">
-                Learn more about Create T3 App, the libraries it uses, and how
-                to deploy it.
-              </div>
-            </Link>
-          </div>
-          <div className="flex flex-col items-center gap-2">
-            <p className="text-2xl text-white">
-              {hello ? hello.greeting : "Loading tRPC query..."}
-            </p>
-          </div>
+    <div>
+      isAuthenticated: {String(isAuthenticated)}
+      <div className="flex min-h-screen items-center justify-center bg-zinc-100 p-4">
+        <Card className="w-full max-w-md border-0 bg-white shadow-lg">
+          <CardContent className="space-y-8 p-8">
+            <div className="space-y-2 text-center">
+              <Shield className="mx-auto mb-2 h-12 w-12 text-zinc-700" />
+              <h1 className="text-2xl font-semibold text-zinc-900">
+                Secure Access
+              </h1>
+              <p className="text-sm text-zinc-500">
+                Authenticate to view your wallet
+              </p>
+            </div>
 
-          <LatestPost />
-        </div>
-      </main>
-    </HydrateClient>
+            <Button
+              className="w-full bg-zinc-800 py-6 text-lg text-white transition-colors duration-300 hover:bg-zinc-900"
+              size="lg"
+              onClick={handleRetry}
+            >
+              <Fingerprint className="mr-2 h-6 w-6" />
+              Authenticate
+            </Button>
+
+            {authFailed && (
+              <span className="">
+                <p className="text-sm text-red-500">
+                  Biometrics Auth failed. Please try again.
+                </p>
+              </span>
+            )}
+
+            <div className="rounded-lg bg-zinc-50 p-4 text-sm">
+              <p className="font-mono text-zinc-700">
+                <span className="text-zinc-400">User:</span> {user?.first_name}{" "}
+                {user?.last_name}
+              </p>
+              <p className="font-mono text-zinc-700">
+                <span className="text-zinc-400">ID:</span> ••••••789
+              </p>
+              {JSON.stringify(user)}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
   );
 }
