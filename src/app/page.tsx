@@ -14,14 +14,28 @@ import Image from "next/image";
 import { useCreateStellarPasskey } from "~/hooks/useCreateStellarPasskey";
 
 export default function Home() {
+  const [isTelegramAppReady, setIsTelegramAppReady] = useState<boolean>(false);
   const [biometricAuthStatus, setBiometricAuthStatus] = useState<string>(
     "Checking biometrics...",
   );
+  const [isAuthenticating, setIsAuthenticating] = useState<boolean>(true); // Track if authentication is in progress
   const [authFailed, setAuthFailed] = useState<boolean>(false); // Track if authentication failed
   const [biometricAttempted, setBiometricAttempted] = useState<boolean>(false); // Track if biometrics were attempted
-  const { user, isAuthenticated, setIsAuthenticated, setUser, clearSession } =
-    useSessionStore();
-  const { create, loading: isCreatingPasskey } = useCreateStellarPasskey();
+  const {
+    user,
+    isAuthenticated,
+    setIsAuthenticated,
+    setUser,
+    clearSession,
+    setDefaultContractId,
+  } = useSessionStore();
+
+  const { data: updatedUser } = api.telegram.getUser.useQuery(
+    { telegramUserId: user?.id },
+    {
+      enabled: !!user?.id,
+    },
+  );
 
   const registerUser = api.telegram.saveUser.useMutation({
     onSuccess: (data) => {
@@ -42,6 +56,12 @@ export default function Home() {
       console.log("Test data: ", test.data);
     }
   }, [test.data]);
+
+  useEffect(() => {
+    if (updatedUser?.defaultContractAddress) {
+      setDefaultContractId(updatedUser.defaultContractAddress);
+    }
+  }, [updatedUser]);
 
   // Function to dynamically load the Telegram WebApp script if it hasn't been loaded
   const loadTelegramScript = (): Promise<boolean> => {
@@ -69,9 +89,47 @@ export default function Home() {
     console.log("Somple console log to watch out on re-renders :)");
   }, []);
 
+  // Function to trigger haptic feedback
+  const triggerHapticFeedback = (
+    type:
+      | "light"
+      | "medium"
+      | "heavy"
+      | "rigid"
+      | "soft"
+      | "success"
+      | "warning"
+      | "error"
+      | "selectionChanged",
+  ) => {
+    if (window.Telegram?.WebApp?.HapticFeedback) {
+      switch (type) {
+        case "light":
+        case "medium":
+        case "heavy":
+        case "rigid":
+        case "soft":
+          window.Telegram.WebApp.HapticFeedback.impactOccurred(type);
+          break;
+        case "success":
+        case "warning":
+        case "error":
+          window.Telegram.WebApp.HapticFeedback.notificationOccurred(type);
+          break;
+        case "selectionChanged":
+          window.Telegram.WebApp.HapticFeedback.selectionChanged();
+          break;
+        default:
+          console.warn("Invalid haptic feedback type");
+      }
+    } else {
+      console.error("Haptic feedback is not supported");
+    }
+  };
+
   // Function to handle biometric authentication
   const authenticate = () => {
-    console.log("Calling authenitcatye");
+    setIsAuthenticating(true);
     // INIT BIOMETRIC AUTHENTICATION
     if (window.Telegram?.WebApp) {
       if (window.Telegram.WebApp.BiometricManager.isInited) {
@@ -84,6 +142,7 @@ export default function Home() {
     } else {
       console.log("Telegram not available");
     }
+    setIsAuthenticating(false);
   };
 
   const requestBiometricAccess = (cb: () => void) => {
@@ -115,6 +174,7 @@ export default function Home() {
       (isAuthenticated, biometricToken) => {
         console.log("Biometric authentication result:", isAuthenticated);
         if (isAuthenticated) {
+          triggerHapticFeedback("success");
           setIsAuthenticated(true);
           setBiometricAuthStatus("Biometric authentication successful");
         } else {
@@ -142,7 +202,7 @@ export default function Home() {
   };
 
   useEffect(() => {
-    console.log("Somple console log to watch out on re-renders :)");
+    console.log("Simple console log to watch out on re-renders :)");
   }, []);
 
   // UseEffect to dynamically load the Telegram script and then authenticate
@@ -151,11 +211,8 @@ export default function Home() {
       .then((requiresAuth) => {
         console.log("Telegram script loaded:", requiresAuth);
         if (requiresAuth) {
-          console.log(
-            "window.Telegram.WebApp.version: ",
-            window.Telegram.WebApp.version,
-          );
           window.Telegram.WebApp.ready();
+          setIsTelegramAppReady(true);
           // Access the user data from Telegram
           const userData = window.Telegram.WebApp.initDataUnsafe?.user;
           if (userData) {
@@ -201,82 +258,92 @@ export default function Home() {
     return window.Telegram.WebApp.openLink(url);
   };
 
+  const handleLogout = () => {
+    clearSession();
+    window.Telegram.WebApp.BiometricManager.updateBiometricToken("");
+  };
+
   return (
     <div>
       {isAuthenticated ? (
-        <StrooperWallet openUrl={openUrl} />
+        <StrooperWallet
+          openUrl={openUrl}
+          onLogout={handleLogout}
+          triggerHapticFeedback={triggerHapticFeedback}
+        />
       ) : (
-        <div className="flex min-h-screen items-center justify-center bg-zinc-100 p-4">
-          <Card className="w-full max-w-md border-0 bg-white shadow-lg">
-            <CardContent className="space-y-8 p-8">
-              <div className="space-y-2 text-center">
-                <h1 className="flex items-center justify-center text-2xl font-semibold text-zinc-900">
-                  Secure Access
-                </h1>
-                <p className="text-sm text-zinc-500">
-                  Authenticate to view your wallet
-                </p>
-              </div>
-
-              <Button
-                className="w-full bg-zinc-800 py-6 text-lg text-white transition-colors duration-300 hover:bg-zinc-900"
-                size="lg"
-                onClick={handleRetry}
-              >
-                <Fingerprint className="mr-2 h-6 w-6" />
-                Authenticate
-              </Button>
-
-              <Button
-                onClick={create}
-                size="lg"
-                className="w-full bg-zinc-800 py-6 text-lg text-white transition-colors duration-300 hover:bg-zinc-900"
-              >
-                {isCreatingPasskey ? (
-                  <LoadingDots color="white" />
-                ) : (
-                  "Create passkey"
-                )}
-              </Button>
-
-              {authFailed && (
-                <span className="">
-                  <p className="text-sm text-red-500">
-                    Biometrics Auth failed. Please try again.
+        <div className="flex flex-col bg-zinc-100 p-4">
+          <div className="flex min-h-[95vh] items-center justify-center">
+            <Card className="w-full max-w-md border-0 bg-white shadow-lg">
+              <CardContent className="space-y-8 p-8">
+                <div className="space-y-2 text-center">
+                  <Shield className="mx-auto h-12 w-12 text-zinc-800" />
+                  <h1 className="flex items-center justify-center text-2xl font-semibold text-zinc-900">
+                    Secure Access
+                  </h1>
+                  <p className="text-sm text-zinc-500">
+                    Authenticate to view your wallet
                   </p>
-                </span>
-              )}
+                </div>
 
-              <div className="rounded-lg bg-zinc-50 p-4 text-sm">
-                {user ? (
-                  <>
-                    <p className="font-mono text-zinc-700">
-                      <span className="text-zinc-400">User:</span>{" "}
-                      {user?.first_name} {user?.last_name}
-                    </p>
-                    <p className="font-mono text-zinc-700">
-                      <span className="text-zinc-400">Username:</span>{" "}
-                      {user?.username}
-                    </p>
-                  </>
-                ) : (
-                  <div className="flex items-center justify-center">
-                    <LoadingDots />
-                  </div>
+                {!isAuthenticated && (
+                  <Button
+                    className="w-full bg-zinc-800 py-6 text-lg text-white transition-colors duration-300 hover:bg-zinc-900"
+                    size="lg"
+                    onClick={() => {
+                      handleRetry();
+                    }}
+                  >
+                    <Fingerprint className="mr-2 h-6 w-6" />
+                    {isAuthenticating ? (
+                      <LoadingDots color="white" />
+                    ) : biometricAttempted ? (
+                      "Retry"
+                    ) : (
+                      "Authenticate"
+                    )}
+                  </Button>
                 )}
-              </div>
-              <div className="flex translate-y-4 flex-row items-center justify-center p-0">
-                <Image
-                  className=""
-                  src="/helmet-logo.png"
-                  alt="Strooper Logo"
-                  width={30}
-                  height={30}
-                />
-                <h1 className="8xl font-bold">Strooper Wallet</h1>
-              </div>
-            </CardContent>
-          </Card>
+                {authFailed && (
+                  <span className="">
+                    <p className="text-sm text-red-500">
+                      Biometrics Auth failed. Please try again.
+                    </p>
+                  </span>
+                )}
+
+                <div className="rounded-lg bg-zinc-50 p-4 text-sm">
+                  {user && (
+                    <>
+                      <p className="font-mono text-zinc-700">
+                        <span className="text-zinc-400">User:</span>{" "}
+                        {user?.first_name} {user?.last_name}
+                      </p>
+                      <p className="font-mono text-zinc-700">
+                        <span className="text-zinc-400">Username:</span>{" "}
+                        {user?.username}
+                      </p>
+                    </>
+                  )}
+                  {!isTelegramAppReady && (
+                    <div className="flex items-center justify-center">
+                      <LoadingDots />
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+          <div className="flex -translate-y-4 flex-row items-center justify-center p-0">
+            <Image
+              className=""
+              src="/helmet-logo.png"
+              alt="Strooper Logo"
+              width={30}
+              height={30}
+            />
+            <h1 className="8xl font-bold">Strooper Wallet</h1>
+          </div>
         </div>
       )}
     </div>

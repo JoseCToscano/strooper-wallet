@@ -3,7 +3,7 @@ import { create } from "zustand";
 
 interface User extends WebAppUser {
   strooperId?: string;
-  wallet?: { publicKey: string };
+  defaultContractAddress?: string;
   // Add any other user properties as needed
 }
 
@@ -12,8 +12,8 @@ interface SessionState {
   isAuthenticated: boolean;
   setIsAuthenticated: (isAuthenticated: boolean) => void;
   setUser: (user: User) => void;
+  setDefaultContractId: (contractId: string) => void;
   clearSession: () => void;
-  setWallet: (wallet: { publicKey: string }) => void;
 }
 
 export const useSessionStore = create<SessionState>((set) => ({
@@ -32,19 +32,17 @@ export const useSessionStore = create<SessionState>((set) => ({
       user,
     })),
 
-  // Action to clear the session (logout)
-  clearSession: () =>
-    set(() => ({
-      user: null,
-      isAuthenticated: false,
-    })),
-
-  // Action to set the wallet for the user
-  setWallet: (wallet: { publicKey: string }) =>
+  setDefaultContractId: (contractId: string) =>
     set((state) => ({
       user: {
         ...state.user!,
-        wallet,
+        defaultContractAddress: contractId,
       },
+    })),
+
+  // Action to clear the session (logout)
+  clearSession: () =>
+    set(() => ({
+      isAuthenticated: false,
     })),
 }));

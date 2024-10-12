@@ -18,23 +18,26 @@ model Signers {
 }
 
 model Session {
-  id          String   @id @default(uuid()) // Unique session ID
-  userId      String // Associate with user ID
-  expiresAt   DateTime // Optional: session expiration time
-  status      String   @default("pending") // Status: pending, success, failure
-  unsignedXDR String? // Unsigned XDR
-  publicKey   String? // Public key
+  id              String   @id @default(uuid()) // Unique session ID
+  userId          String // Associate with user ID
+  expiresAt       DateTime // Optional: session expiration time
+  status          String   @default("pending") // Status: pending, success, failure
+  contractAddress String? // Contract address
+  User            User[]
 }
 
 model User {
-  id                String   @id @default(cuid())
-  telegramId        String   @unique
-  telegramUsername  String?  @unique
-  telegramFirstName String?
-  telegramLastName  String?
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
-  wallets           Wallet[] // A user can have multiple wallets
+  id                     String   @id @default(cuid())
+  telegramId             String   @unique
+  telegramUsername       String?  @unique
+  telegramFirstName      String?
+  telegramLastName       String?
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+  wallets                Wallet[] // A user can have multiple wallets
+  currentSession         Session? @relation(fields: [sessionId], references: [id]) // A user can have one active session
+  sessionId              String?
+  defaultContractAddress String?
 }
 
 model Wallet {

@@ -24,16 +24,45 @@ import { api } from "~/trpc/react";
 import toast from "react-hot-toast";
 import LoadingDots from "~/components/icons/loading-dots";
 import { CreatePasskey } from "~/app/_components/CreatePasskey";
+import { useSigner } from "~/hooks/useSigner";
 
 interface StrooperWalletProps {
   openUrl: (url: string) => void;
+  onLogout: () => void;
+  triggerHapticFeedback?: (v: string) => void;
 }
 
-export const StrooperWallet: React.FC<StrooperWalletProps> = ({ openUrl }) => {
+export const StrooperWallet: React.FC<StrooperWalletProps> = ({
+  openUrl,
+  onLogout,
+  triggerHapticFeedback,
+}) => {
   const [showQR, setShowQR] = useState(false);
   const [amount] = useState<number>(Math.floor(Math.random() * 100));
   const { user } = useSessionStore();
-  const { availableWallets } = useStrooper(user.id);
+
+  const signSession = api.telegram.session.useMutation({
+    onError: ClientTRPCErrorHandler,
+    onSuccess: () => toast.success("Sign ession created"),
+  });
+
+  const { data: activeSession } = api.telegram.getActiveSession.useQuery(
+    {
+      telegramUserId: user?.id,
+    },
+    {
+      enabled: !!user?.id,
+    },
+  );
+
+  const transferXLM = async () => {
+    const sessionData = await signSession.mutateAsync({
+      telegramUserId: user!.id,
+    });
+    if (sessionData) {
+      openUrl(`${env.NEXT_PUBLIC_APP_URL}/sign?sessionId=${sessionData.id}`);
+    }
+  };
 
   const paymentSignature = () => {
     // const domain = "https://0503fa22d87e.ngrok.app";
@@ -79,99 +108,78 @@ export const StrooperWallet: React.FC<StrooperWalletProps> = ({ openUrl }) => {
     // }
   }
 
+  if (!activeSession?.contractAddress && !user?.defaultContractAddress) {
+    return (
+      <CreatePasskey
+        openUrl={openUrl}
+        triggerHapticFeedback={triggerHapticFeedback}
+      />
+    );
+  }
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-transparent p-4">
-      <div className="flex flex-col gap-2">
-        <CreatePasskey openUrl={openUrl} />
+    <Card className="min-h-screen w-full max-w-md border-0 bg-white p-4 shadow-lg">
+      <CardHeader className="pb-2">
         <Button
-          className="w-full bg-zinc-800 py-6 text-lg text-white transition-colors duration-300 hover:bg-zinc-900"
-          size="lg"
-          onClick={paymentSignature}
+          onClick={scanQrCode}
+          variant="ghost"
+          size="icon"
+          className="absolute right-2 top-2"
+          aria-label="Scan QR Code"
         >
-          <Fingerprint className="mr-2 h-6 w-6" />
-          SEND {amount} XLM
+          <ScanIcon className="h-5 w-5" />
         </Button>
         <Button
-          className="w-full rounded-md border-[1px] border-zinc-800 p-2 text-lg text-zinc-800 transition-colors duration-300 hover:bg-zinc-900"
-          onClick={() => {
-            // window.Telegram.WebApp.BiometricManager.updateBiometricToken("");
-            // setIsAuthenticated(false);
-          }}
+          onClick={onLogout}
+          variant="ghost"
+          size="icon"
+          className="absolute left-2 top-2"
+          aria-label="Scan QR Code"
         >
-          Logout
+          logout
         </Button>
-        <Card className="w-full max-w-md bg-white/90 backdrop-blur-sm">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-center text-2xl font-bold">
-              Stellar Wallet
-            </CardTitle>
-            <Button
-              onClick={scanQrCode}
-              variant="ghost"
-              size="icon"
-              className="absolute right-2 top-2"
-              aria-label="Scan QR Code"
-            >
-              <ScanIcon className="h-5 w-5" />
-            </Button>
-          </CardHeader>
-          <CardContent>
-            <div className="mb-6 text-center">
-              <p className="mb-1 text-sm text-gray-500">Your Balance</p>
-              <h2 className="text-4xl font-bold">1001.1234 XLM</h2>
-            </div>
-            <div className="mb-6 flex justify-between">
-              <Button
-                disabled
-                title="Coming soon"
-                variant="outline"
-                className="w-[48%]"
-              >
-                <ArrowUpIcon className="mr-2 h-4 w-4" /> Send
-              </Button>
-              <Button
-                onClick={() => setShowQR(!showQR)}
-                variant="outline"
-                className="w-[48%]"
-              >
-                {!showQR && <ArrowDownIcon className="mr-2 h-4 w-4" />}
-                {showQR ? "Hide QR" : "Receive"}
-              </Button>
-            </div>
-            {showQR && (
-              <div className="flex w-full items-center justify-center rounded-t-md bg-gray-100 p-4">
-                {/* eslint-disable-next-line react/jsx-no-undef */}
-                <Image
-                  src={generateQrCode("publicKey ?? ")}
-                  width="250"
-                  height="250"
-                  alt="QR Code"
-                  className="rounded-md"
-                  style={{ aspectRatio: "200/200", objectFit: "cover" }}
-                />
-              </div>
-            )}
-            <Select>
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Select a fruit" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectGroup>
-                  <SelectLabel>Fruits</SelectLabel>
-                  {availableWallets?.map((wallet) => (
-                    <SelectItem key={wallet.publicKey} value="apple">
-                      Apple
-                    </SelectItem>
-                  ))}
-                </SelectGroup>
-              </SelectContent>
-            </Select>
-            <div className="mb-6">
-              <h3 className="mb-2 font-semibold">Your Assets</h3>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    </div>
+      </CardHeader>
+      <CardContent className="space-y-8 p-8">
+        <div className="mb-6 text-center">
+          <p className="mb-1 text-sm text-gray-500">Your Balance</p>
+          <h2 className="text-4xl font-bold">1001.1234 XLM</h2>
+        </div>
+        <div className="mb-6 flex justify-between">
+          <Button
+            onClick={transferXLM}
+            title="Coming soon"
+            variant="outline"
+            className="w-[48%]"
+          >
+            <ArrowUpIcon className="mr-2 h-4 w-4" /> Send
+          </Button>
+          <Button
+            onClick={() => setShowQR(!showQR)}
+            variant="outline"
+            className="w-[48%]"
+          >
+            {!showQR && <ArrowDownIcon className="mr-2 h-4 w-4" />}
+            {showQR ? "Hide QR" : "Receive"}
+          </Button>
+        </div>
+        {showQR && (
+          <div className="flex w-full items-center justify-center rounded-t-md bg-gray-100 p-4">
+            {/* eslint-disable-next-line react/jsx-no-undef */}
+            <Image
+              src={generateQrCode("publicKey ?? ")}
+              width="250"
+              height="250"
+              alt="QR Code"
+              className="rounded-md"
+              style={{ aspectRatio: "200/200", objectFit: "cover" }}
+            />
+          </div>
+        )}
+
+        <div className="mb-6">
+          <h3 className="mb-2 font-semibold">Your Assets</h3>
+        </div>
+      </CardContent>
+    </Card>
   );
 };

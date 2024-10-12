@@ -5,10 +5,8 @@ import { useKeyStore } from "~/hooks/stores/useKeyStore";
 import { account } from "~/lib/client-helpers";
 import { ClientTRPCErrorHandler } from "~/lib/utils";
 import toast from "react-hot-toast";
-import { useSessionStore } from "~/hooks/stores/useSessionStore";
 
-export const useCreateStellarPasskey = () => {
-  const { user: telegramUser } = useSessionStore();
+export const useCreateStellarPasskey = (telegramUser?: WebAppUser) => {
   const [loading, setLoading] = useState(false);
   const setContractId = useContractStore((state) => state.setContractId);
   const setKeyId = useKeyStore((state) => state.setKeyId);
@@ -28,6 +26,13 @@ export const useCreateStellarPasskey = () => {
     onError: ClientTRPCErrorHandler,
   });
 
+  // Link generated Stellar Contract ID to the User's current session
+  const { mutateAsync: saveContractIdToSession } =
+    api.telegram.updateSession.useMutation({
+      onError: ClientTRPCErrorHandler,
+      onSuccess: () => toast.success("Successfully updated session"),
+    });
+
   useEffect(() => {
     if (isLoading) {
       setLoading(true);
@@ -35,7 +40,7 @@ export const useCreateStellarPasskey = () => {
   }, [isLoading]);
 
   // Create a function to handle the wallet creation process
-  const create = async () => {
+  const create = async (): Promise<string> => {
     try {
       setLoading(true);
       const user = "Strooper";
@@ -45,7 +50,7 @@ export const useCreateStellarPasskey = () => {
         built,
       } = await account.createWallet(
         user,
-        telegramUser?.username ?? "UserNotFound",
+        telegramUser?.telegramUsername ?? "Strooper",
       );
 
       // Use tRPC mutation to send the transaction to the Stellar network
@@ -64,12 +69,15 @@ export const useCreateStellarPasskey = () => {
           contractId: cid,
           signerId: keyId_base64,
         });
+        return cid;
         console.log("here 2");
         console.log("KeyId: ", keyId_base64);
         console.log("ContractId: ", cid);
       }
+      throw new Error("Failed to create Stellar passkey");
     } catch (err: any) {
       toast.error(err.message ?? "Failed to create Stellar passkey");
+      throw new Error(err.message ?? "Failed to create Stellar passkey");
     } finally {
       setLoading(false);
     }

@@ -53,7 +53,7 @@ export const authRouter = createTRPCRouter({
       await ctx.db.wallet.create({
         data: {
           publicKey: stellarPublicKey,
-          userId: user.id,
+          userId: user?.id,
         },
       });
       return { success: true };

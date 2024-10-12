@@ -6,45 +6,17 @@ import {
   Fingerprint,
   ScanIcon,
 } from "lucide-react";
+import Image from "next/image";
 import { Button } from "~/components/ui/button";
 import { useState } from "react";
 import { generateQrCode } from "~/lib/utils";
 import { api } from "~/trpc/react";
-import { Horizon } from "@stellar/stellar-sdk";
-import dayjs from "dayjs";
-import { useStrooper } from "~/hooks/useStrooper";
-import { SelectWallet } from "~/app/_components/SelectWallet";
-
-const tokens = [
-  { id: 1, name: "Ethereum", symbol: "ETH", balance: "1.2345", icon: "🔷" },
-  { id: 2, name: "USD Coin", symbol: "USDC", balance: "100.00", icon: "💵" },
-  { id: 3, name: "Chainlink", symbol: "LINK", balance: "50.75", icon: "⛓️" },
-  { id: 4, name: "Uniswap", symbol: "UNI", balance: "25.5", icon: "🦄" },
-];
 
 export const Wallet: React.FC = () => {
   const [amount] = useState<number>(Math.floor(Math.random() * 1000) + 1);
   const [loading, setLoading] = useState(true);
   const [showQR, setShowQR] = useState(false);
   // const { publicKey, availableWallets, telegramUserId } = useStrooper();
-
-  const sessionCreator = api.telegram.session.useMutation({
-    onSuccess: (data) => {
-      console.log("Session created successfully:", data);
-    },
-    onError: (error) => {
-      console.error("Error creating session:", error);
-    },
-  });
-
-  const paymentSessionCreator = api.telegram.payment.useMutation({
-    onSuccess: (data) => {
-      console.log("Session created successfully:", data);
-    },
-    onError: (error) => {
-      console.error("Error creating session:", error);
-    },
-  });
 
   const paymentSignature = () => {
     // const domain = "https://0503fa22d87e.ngrok.app";
@@ -190,7 +162,6 @@ export const Wallet: React.FC = () => {
           </div>
           {showQR && (
             <div className="flex w-full items-center justify-center rounded-t-md bg-gray-100 p-4">
-              {/* eslint-disable-next-line react/jsx-no-undef */}
               <Image
                 src={generateQrCode("publicKey ?? ")}
                 width="250"
