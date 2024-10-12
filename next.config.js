@@ -5,6 +5,13 @@
 await import("./src/env.js");
 
 /** @type {import("next").NextConfig} */
-const config = {};
+const config = {
+  transpilePackages: [
+    "passkey-kit",
+    "passkey-factory-sdk",
+    "passkey-kit-sdk",
+    "sac-sdk",
+  ],
+};
 
 export default config;

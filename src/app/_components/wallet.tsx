@@ -3,19 +3,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import {
   ArrowDownIcon,
   ArrowUpIcon,
-  CopyIcon,
   Fingerprint,
-  RefreshCwIcon,
   ScanIcon,
 } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { useState } from "react";
-import {
-  cn,
-  copyToClipboard,
-  generateQrCode,
-  shortStellarAddress,
-} from "~/lib/utils";
+import { generateQrCode } from "~/lib/utils";
 import { api } from "~/trpc/react";
 import { Horizon } from "@stellar/stellar-sdk";
 import dayjs from "dayjs";

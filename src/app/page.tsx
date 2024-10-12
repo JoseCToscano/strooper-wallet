@@ -11,6 +11,7 @@ import { useSessionStore } from "~/hooks/stores/useSessionStore";
 import LoadingDots from "~/components/icons/loading-dots";
 import { StrooperWallet } from "~/app/_components/StrooperWallet";
 import Image from "next/image";
+import { useCreateStellarPasskey } from "~/hooks/useCreateStellarPasskey";
 
 export default function Home() {
   const [biometricAuthStatus, setBiometricAuthStatus] = useState<string>(
@@ -20,6 +21,7 @@ export default function Home() {
   const [biometricAttempted, setBiometricAttempted] = useState<boolean>(false); // Track if biometrics were attempted
   const { user, isAuthenticated, setIsAuthenticated, setUser, clearSession } =
     useSessionStore();
+  const { create, loading: isCreatingPasskey } = useCreateStellarPasskey();
 
   const registerUser = api.telegram.saveUser.useMutation({
     onSuccess: (data) => {
@@ -29,6 +31,17 @@ export default function Home() {
       console.error("Error registering user:", error);
     },
   });
+
+  const test = api.stellar.details.useQuery({
+    id: "CAEZYXRIPT3Y2TDBSUREH2TCKBMONZW7T2BGW2QOJ2DMLMMFXVN7GUNX",
+    network: "Testnet",
+  });
+
+  useEffect(() => {
+    if (test.data) {
+      console.log("Test data: ", test.data);
+    }
+  }, [test.data]);
 
   // Function to dynamically load the Telegram WebApp script if it hasn't been loaded
   const loadTelegramScript = (): Promise<boolean> => {
@@ -212,6 +225,18 @@ export default function Home() {
               >
                 <Fingerprint className="mr-2 h-6 w-6" />
                 Authenticate
+              </Button>
+
+              <Button
+                onClick={create}
+                size="lg"
+                className="w-full bg-zinc-800 py-6 text-lg text-white transition-colors duration-300 hover:bg-zinc-900"
+              >
+                {isCreatingPasskey ? (
+                  <LoadingDots color="white" />
+                ) : (
+                  "Create passkey"
+                )}
               </Button>
 
               {authFailed && (

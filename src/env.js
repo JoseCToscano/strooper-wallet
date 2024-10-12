@@ -12,6 +12,10 @@ export const env = createEnv({
     NODE_ENV: z
       .enum(["development", "test", "production"])
       .default("development"),
+    LAUNCHTUBE_URL: z.string().url(),
+    LAUNCHETUBE_JWT: z.string(),
+    MERCURYT_URL: z.string().url(),
+    MERCURY_JWT: z.string(),
   },
 
   /**
@@ -20,7 +24,11 @@ export const env = createEnv({
    * `NEXT_PUBLIC_`.
    */
   client: {
+    NEXT_PUBLIC_FACTORY_CONTRACT_ID: z.string(),
+    NEXT_PUBLIC_NATIVE_CONTRACT_ID: z.string(),
+    NEXT_PUBLIC_RPC_URL: z.string(),
     NEXT_PUBLIC_APP_URL: z.string().url(),
+    NEXT_PUBLIC_NETWORK_PASSPHRASE: z.string(), //
     // NEXT_PUBLIC_CLIENTVAR: z.string(),
   },
 
@@ -29,7 +37,16 @@ export const env = createEnv({
    * middlewares) or client-side so we need to destruct manually.
    */
   runtimeEnv: {
+    NEXT_PUBLIC_FACTORY_CONTRACT_ID:
+      process.env.NEXT_PUBLIC_FACTORY_CONTRACT_ID,
+    NEXT_PUBLIC_NATIVE_CONTRACT_ID: process.env.NEXT_PUBLIC_NATIVE_CONTRACT_ID,
+    NEXT_PUBLIC_NETWORK_PASSPHRASE: process.env.NEXT_PUBLIC_NETWORK_PASSPHRASE,
+    NEXT_PUBLIC_RPC_URL: process.env.NEXT_PUBLIC_RPC_URL,
     NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
+    LAUNCHTUBE_URL: process.env.LAUNCHTUBE_URL,
+    MERCURYT_URL: process.env.MERCURYT_URL,
+    LAUNCHETUBE_JWT: process.env.LAUNCHETUBE_JWT,
+    MERCURY_JWT: process.env.MERCURY_JWT,
     DATABASE_URL: process.env.DATABASE_URL,
     NODE_ENV: process.env.NODE_ENV,
     TELEGRAM_BOT_URL: process.env.TELEGRAM_BOT_URL,

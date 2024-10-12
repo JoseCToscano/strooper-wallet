@@ -23,45 +23,17 @@ import { env } from "~/env";
 import { api } from "~/trpc/react";
 import toast from "react-hot-toast";
 import LoadingDots from "~/components/icons/loading-dots";
+import { CreatePasskey } from "~/app/_components/CreatePasskey";
 
 interface StrooperWalletProps {
   openUrl: (url: string) => void;
 }
 
 export const StrooperWallet: React.FC<StrooperWalletProps> = ({ openUrl }) => {
-  const [loadingPasskeySession, setLoadingPasskeySession] = useState(false);
   const [showQR, setShowQR] = useState(false);
   const [amount] = useState<number>(Math.floor(Math.random() * 100));
   const { user } = useSessionStore();
-  const { publicKey, availableWallets } = useStrooper(user.id);
-
-  const sessionCreator = api.telegram.session.useMutation({
-    onSuccess: (data) => {
-      toast.success("Session created successfully");
-      console.log("Session created successfully:", data);
-    },
-    onError: ClientTRPCErrorHandler,
-  });
-
-  const redirectToBrowserForPasskey = () => {
-    setLoadingPasskeySession(true);
-    sessionCreator
-      .mutateAsync({ telegramUserId: String(user?.id) })
-      .then((session) => {
-        const url = `${env.NEXT_PUBLIC_APP_URL}/new-passkey?sessionId=${session.id}`;
-        openUrl(url);
-      })
-      .catch((error) => {
-        console.error("Error creating session:", error);
-      })
-      .finally(() => {
-        setLoadingPasskeySession(false);
-      });
-  };
-
-  const createPasskey = () => {
-    redirectToBrowserForPasskey();
-  };
+  const { availableWallets } = useStrooper(user.id);
 
   const paymentSignature = () => {
     // const domain = "https://0503fa22d87e.ngrok.app";
@@ -110,18 +82,7 @@ export const StrooperWallet: React.FC<StrooperWalletProps> = ({ openUrl }) => {
   return (
     <div className="flex min-h-screen items-center justify-center bg-transparent p-4">
       <div className="flex flex-col gap-2">
-        <Button
-          className="w-full rounded-md border-[1px] border-zinc-800 p-2 text-lg text-zinc-800 transition-colors duration-300 hover:bg-zinc-900"
-          onClick={createPasskey}
-        >
-          {loadingPasskeySession ? (
-            <>
-              <LoadingDots />
-            </>
-          ) : (
-            "Create Passkey"
-          )}
-        </Button>
+        <CreatePasskey openUrl={openUrl} />
         <Button
           className="w-full bg-zinc-800 py-6 text-lg text-white transition-colors duration-300 hover:bg-zinc-900"
           size="lg"
