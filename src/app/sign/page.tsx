@@ -30,7 +30,7 @@ export default function SignTransaction() {
               <p className="flex justify-between">
                 <span className="text-zinc-500">From:</span>
                 <span className="font-mono text-zinc-700">
-                  {shortStellarAddress(contractId)}
+                  {shortStellarAddress(contractId ?? "")}
                 </span>
               </p>
               <p className="flex justify-between">

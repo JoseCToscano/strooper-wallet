@@ -1,7 +1,6 @@
 import { useContractStore } from "~/hooks/stores/useContractStore";
 import { useKeyStore } from "~/hooks/stores/useKeyStore";
 import { account } from "~/lib/client-helpers";
-import { getContractId } from "~/lib/passkey";
 import { api } from "~/trpc/react";
 
 export const useConnectSigner = () => {
