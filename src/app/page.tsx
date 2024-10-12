@@ -10,6 +10,7 @@ import { SelectWallet } from "~/app/_components/SelectWallet";
 import { useSessionStore } from "~/hooks/stores/useSessionStore";
 import LoadingDots from "~/components/icons/loading-dots";
 import { StrooperWallet } from "~/app/_components/StrooperWallet";
+import Image from "next/image";
 
 export default function Home() {
   const [biometricAuthStatus, setBiometricAuthStatus] = useState<string>(
@@ -183,17 +184,20 @@ export default function Home() {
   //   }
   // };
 
+  const openUrl = (url: string) => {
+    return window.Telegram.WebApp.openLink(url);
+  };
+
   return (
     <div>
       {isAuthenticated ? (
-        <StrooperWallet />
+        <StrooperWallet openUrl={openUrl} />
       ) : (
         <div className="flex min-h-screen items-center justify-center bg-zinc-100 p-4">
           <Card className="w-full max-w-md border-0 bg-white shadow-lg">
             <CardContent className="space-y-8 p-8">
               <div className="space-y-2 text-center">
-                <Shield className="mx-auto mb-2 h-12 w-12 text-zinc-700" />
-                <h1 className="text-2xl font-semibold text-zinc-900">
+                <h1 className="flex items-center justify-center text-2xl font-semibold text-zinc-900">
                   Secure Access
                 </h1>
                 <p className="text-sm text-zinc-500">
@@ -235,6 +239,16 @@ export default function Home() {
                     <LoadingDots />
                   </div>
                 )}
+              </div>
+              <div className="flex translate-y-4 flex-row items-center justify-center p-0">
+                <Image
+                  className=""
+                  src="/helmet-logo.png"
+                  alt="Strooper Logo"
+                  width={30}
+                  height={30}
+                />
+                <h1 className="8xl font-bold">Strooper Wallet</h1>
               </div>
             </CardContent>
           </Card>

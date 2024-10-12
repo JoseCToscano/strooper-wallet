@@ -19,10 +19,7 @@ import {
 } from "~/lib/utils";
 import { Button } from "~/components/ui/button";
 
-const BOT_USERNAME = "stellar_wallet_poc_bot/stellar_passkey_poc";
 const WalletCreation = () => {
-  const [publicKey, setPublicKey] = useState<string>("");
-  const [secretKey, setSecretKey] = useState<string>("");
   const [authStatus, setAuthStatus] = useState<string | null>(null);
   const [passkeyCredential, setPasskeyCredential] = useState<any>(null);
   const searchParams = useSearchParams();
@@ -36,17 +33,6 @@ const WalletCreation = () => {
     },
     !!searchParams.get("sessionId"),
   ); // Function to generate Stellar Keypair
-  const generateStellarKeypair = () => {
-    const keypair = Keypair.random();
-    setPublicKey(keypair.publicKey());
-    setSecretKey(keypair.secret());
-    console.log(
-      "Generated Stellar Keypair:",
-      keypair.publicKey(),
-      keypair.secret(),
-    );
-    return keypair;
-  };
 
   const registerPasskey = async (secretKey: string) => {
     if (

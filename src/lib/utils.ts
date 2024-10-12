@@ -1,5 +1,8 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
+import toast from "react-hot-toast";
+import { type TRPCClientErrorLike } from "@trpc/client";
+import { type AnyClientTypes } from "@trpc/server/unstable-core-do-not-import";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -11,13 +14,13 @@ export function cn(...inputs: ClassValue[]) {
  */
 export function getHorizonServerUrl(network: string): string {
   return network === "Testnet"
-      ? "https://horizon-testnet.stellar.org"
-      : "https://horizon.stellar.org";
+    ? "https://horizon-testnet.stellar.org"
+    : "https://horizon.stellar.org";
 }
 export function getFullName(user: WebAppUser): string {
   return user.last_name
-      ? `${user.first_name} ${user.last_name}`
-      : user.first_name;
+    ? `${user.first_name} ${user.last_name}`
+    : user.first_name;
 }
 
 // Open or create the IndexedDB database
@@ -63,11 +66,11 @@ export async function getKey(keyId: string): Promise<CryptoKey> {
       if (exportedKey) {
         // Import the JWK back into a CryptoKey
         const importedKey = await crypto.subtle.importKey(
-            "jwk",
-            exportedKey,
-            { name: "AES-GCM", length: 256 },
-            false, // Not extractable
-            ["encrypt", "decrypt"],
+          "jwk",
+          exportedKey,
+          { name: "AES-GCM", length: 256 },
+          false, // Not extractable
+          ["encrypt", "decrypt"],
         );
         resolve(importedKey);
       } else {
@@ -79,8 +82,8 @@ export async function getKey(keyId: string): Promise<CryptoKey> {
 }
 
 export async function storeCredentialId(
-    keyId: string,
-    credentialId: Uint8Array,
+  keyId: string,
+  credentialId: Uint8Array,
 ): Promise<void> {
   const db = await openDatabase();
   const transaction = db.transaction("keys", "readwrite");
@@ -110,7 +113,7 @@ export async function getCredentialId(keyId: string): Promise<Uint8Array> {
       if (credentialIdBase64) {
         // Convert the base64 string back into a Uint8Array
         const credentialId = Uint8Array.from(atob(credentialIdBase64), (c) =>
-            c.charCodeAt(0),
+          c.charCodeAt(0),
         );
         resolve(credentialId);
       } else {
@@ -123,8 +126,8 @@ export async function getCredentialId(keyId: string): Promise<Uint8Array> {
 
 // Store non-CryptoKey data (ArrayBuffer, Uint8Array) in IndexedDB
 export async function storeData(
-    keyId: string,
-    data: ArrayBuffer | Uint8Array,
+  keyId: string,
+  data: ArrayBuffer | Uint8Array,
 ): Promise<void> {
   const db = await openDatabase();
   const transaction = db.transaction("keys", "readwrite");
@@ -163,29 +166,47 @@ export async function getData(keyId: string): Promise<ArrayBuffer | null> {
 }
 
 export function shortStellarAddress(
-    longAddress: string,
-    charsToShow = 4,
+  longAddress: string,
+  charsToShow = 4,
 ): string {
   if (!longAddress) return "";
   return (
-      longAddress.slice(0, charsToShow) + "..." + longAddress.slice(-charsToShow)
+    longAddress.slice(0, charsToShow) + "..." + longAddress.slice(-charsToShow)
   );
 }
 
 export function copyToClipboard(text: string, silence = false) {
   navigator.clipboard
-      .writeText(text)
-      .then(() => {
-        // toast.success("Copied to clipboard");
-      })
-      .catch(() => {
-        if (!silence) {
-          // toast.error("Failed to copy to clipboard");
-        }
-      });
+    .writeText(text)
+    .then(() => {
+      // toast.success("Copied to clipboard");
+    })
+    .catch(() => {
+      if (!silence) {
+        // toast.error("Failed to copy to clipboard");
+      }
+    });
 }
 
 export function generateQrCode(data: string): string {
   const size = "100x100";
   return `https://api.qrserver.com/v1/create-qr-code/?size=${size}&data=${encodeURIComponent(data)}`;
+}
+
+export function ClientTRPCErrorHandler<T extends AnyClientTypes>(
+  x?: TRPCClientErrorLike<T>,
+) {
+  if (x?.message) {
+    toast.error(x?.message);
+  } else if ((x?.data as { code: string })?.code === "INTERNAL_SERVER_ERROR") {
+    toast.error("We are facing some issues. Please try again later");
+  } else if ((x?.data as { code: string })?.code === "BAD_REQUEST") {
+    toast.error("Invalid request. Please try again later");
+  } else if ((x?.data as { code: string })?.code === "UNAUTHORIZED") {
+    toast.error("Unauthorized request. Please try again later");
+  } else if (x?.message) {
+    toast.error(x?.message);
+  } else {
+    toast.error("We are facing some issues! Please try again later");
+  }
 }
