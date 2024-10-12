@@ -55,7 +55,7 @@ export default function Home() {
 
   useEffect(() => {
     if (updatedUser?.defaultContractAddress) {
-      setDefaultContractId(updatedUser.defaultContractAddress);
+      setDefaultContractId(updatedUser?.defaultContractAddress);
     }
   }, [updatedUser]);
 
@@ -153,9 +153,13 @@ export default function Home() {
             console.log("Biometric access granted");
             cb();
           } else {
-            window.confirm(
-              "Biometric access denied. Please enable biometric access in settings",
-            ) && window.Telegram.WebApp.BiometricManager.openSettings();
+            if (
+              window.confirm(
+                "Biometric access denied. Please enable biometric access in settings",
+              )
+            ) {
+              window.Telegram.WebApp.BiometricManager.openSettings();
+            }
           }
         },
       );
