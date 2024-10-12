@@ -5,8 +5,9 @@ import { useKeyStore } from "~/hooks/stores/useKeyStore";
 import { account } from "~/lib/client-helpers";
 import { ClientTRPCErrorHandler } from "~/lib/utils";
 import toast from "react-hot-toast";
+import { User } from "@prisma/client";
 
-export const useCreateStellarPasskey = (telegramUser?: WebAppUser) => {
+export const useCreateStellarPasskey = (strooperUser?: User) => {
   const [loading, setLoading] = useState(false);
   const setContractId = useContractStore((state) => state.setContractId);
   const setKeyId = useKeyStore((state) => state.setKeyId);
@@ -50,34 +51,31 @@ export const useCreateStellarPasskey = (telegramUser?: WebAppUser) => {
         built,
       } = await account.createWallet(
         user,
-        telegramUser?.telegramUsername ?? "Strooper",
+        strooperUser?.telegramUsername ?? "Strooper",
       );
 
       // Use tRPC mutation to send the transaction to the Stellar network
       const result = await sendTransaction({
         xdr: built.toXDR(),
       });
-      console.log("result", result);
-      console.log("result?.status", result?.status);
-      console.log(String(result?.status).toUpperCase() === "SUCCESS");
       if (result.success) {
         // Store keyId and contractId in Zustand store
         setKeyId(keyId_base64);
         setContractId(cid);
-        console.log("here");
         await saveSigner.mutateAsync({
           contractId: cid,
           signerId: keyId_base64,
         });
         return cid;
-        console.log("here 2");
-        console.log("KeyId: ", keyId_base64);
-        console.log("ContractId: ", cid);
       }
       throw new Error("Failed to create Stellar passkey");
-    } catch (err: any) {
-      toast.error(err.message ?? "Failed to create Stellar passkey");
-      throw new Error(err.message ?? "Failed to create Stellar passkey");
+    } catch (err) {
+      toast.error(
+        (err as Error)?.message ?? "Failed to create Stellar passkey",
+      );
+      throw new Error(
+        (err as Error)?.message ?? "Failed to create Stellar passkey",
+      );
     } finally {
       setLoading(false);
     }

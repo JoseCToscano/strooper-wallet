@@ -1,35 +1,31 @@
 import { Button } from "~/components/ui/button";
-import {
-  ArrowDownIcon,
-  ArrowUpIcon,
-  Fingerprint,
-  ScanIcon,
-} from "lucide-react";
+import Image from "next/image";
+import { ArrowDownIcon, ArrowUpIcon, ScanIcon } from "lucide-react";
 import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
+import { Card, CardContent, CardHeader } from "~/components/ui/card";
 import { ClientTRPCErrorHandler, generateQrCode } from "~/lib/utils";
-import { useStrooper } from "~/hooks/useStrooper";
 import { useSessionStore } from "~/hooks/stores/useSessionStore";
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue,
-} from "~/components/ui/select";
+
 import { env } from "~/env";
 import { api } from "~/trpc/react";
 import toast from "react-hot-toast";
-import LoadingDots from "~/components/icons/loading-dots";
 import { CreatePasskey } from "~/app/_components/CreatePasskey";
-import { useSigner } from "~/hooks/useSigner";
 
 interface StrooperWalletProps {
   openUrl: (url: string) => void;
   onLogout: () => void;
-  triggerHapticFeedback?: (v: string) => void;
+  triggerHapticFeedback?: (
+    style:
+      | "light"
+      | "medium"
+      | "heavy"
+      | "rigid"
+      | "soft"
+      | "success"
+      | "warning"
+      | "error"
+      | "selectionChanged",
+  ) => void;
 }
 
 export const StrooperWallet: React.FC<StrooperWalletProps> = ({
@@ -48,7 +44,7 @@ export const StrooperWallet: React.FC<StrooperWalletProps> = ({
 
   const { data: activeSession } = api.telegram.getActiveSession.useQuery(
     {
-      telegramUserId: user?.id,
+      telegramUserId: String(user?.id),
     },
     {
       enabled: !!user?.id,
@@ -164,7 +160,6 @@ export const StrooperWallet: React.FC<StrooperWalletProps> = ({
         </div>
         {showQR && (
           <div className="flex w-full items-center justify-center rounded-t-md bg-gray-100 p-4">
-            {/* eslint-disable-next-line react/jsx-no-undef */}
             <Image
               src={generateQrCode("publicKey ?? ")}
               width="250"

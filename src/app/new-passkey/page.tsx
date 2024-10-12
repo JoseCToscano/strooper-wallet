@@ -12,7 +12,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { ClientTRPCErrorHandler } from "~/lib/utils";
 import toast from "react-hot-toast";
 
-export const NewPassKey: FC = () => {
+const NewPassKey: FC = () => {
   const [creatingPasskey, setCreatingPasskey] = useState(false);
   const searchParams = useSearchParams();
   const sessionId = searchParams.get("sessionId");
@@ -36,7 +36,7 @@ export const NewPassKey: FC = () => {
     session.data?.user,
   );
 
-  if (session.loading || !session?.data?.user) {
+  if (session.isLoading || !session?.data?.user) {
     return <LoadingCard />;
   }
 

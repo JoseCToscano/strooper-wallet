@@ -12,7 +12,18 @@ import { AlertCircle, Fingerprint, Shield } from "lucide-react";
 
 interface CreatePasskeyProps {
   openUrl: (url: string) => void;
-  triggerHapticFeedback?: (v: string) => void;
+  triggerHapticFeedback?: (
+    style:
+      | "light"
+      | "medium"
+      | "heavy"
+      | "rigid"
+      | "soft"
+      | "success"
+      | "warning"
+      | "error"
+      | "selectionChanged",
+  ) => void;
 }
 export const CreatePasskey: React.FC<CreatePasskeyProps> = ({
   openUrl,

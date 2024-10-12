@@ -4,14 +4,10 @@ import { Card, CardContent } from "~/components/ui/card";
 import { Button } from "~/components/ui/button";
 import { Fingerprint, Shield } from "lucide-react";
 import { api } from "~/trpc/react";
-import { useStrooper } from "~/hooks/useStrooper";
-import { shortStellarAddress } from "~/lib/utils";
-import { SelectWallet } from "~/app/_components/SelectWallet";
 import { useSessionStore } from "~/hooks/stores/useSessionStore";
 import LoadingDots from "~/components/icons/loading-dots";
 import { StrooperWallet } from "~/app/_components/StrooperWallet";
 import Image from "next/image";
-import { useCreateStellarPasskey } from "~/hooks/useCreateStellarPasskey";
 
 export default function Home() {
   const [isTelegramAppReady, setIsTelegramAppReady] = useState<boolean>(false);
@@ -31,7 +27,7 @@ export default function Home() {
   } = useSessionStore();
 
   const { data: updatedUser } = api.telegram.getUser.useQuery(
-    { telegramUserId: user?.id },
+    { telegramUserId: String(user?.id) },
     {
       enabled: !!user?.id,
     },
@@ -218,9 +214,9 @@ export default function Home() {
           if (userData) {
             registerUser.mutate({
               telegramId: userData.id,
-              username: userData.username,
+              username: userData.username ?? "",
               firstName: userData.first_name,
-              lastName: userData.last_name,
+              lastName: userData.last_name ?? "",
             });
             setUser(userData);
           }

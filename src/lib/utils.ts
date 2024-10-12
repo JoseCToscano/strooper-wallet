@@ -170,7 +170,7 @@ export async function getData(keyId: string): Promise<ArrayBuffer | null> {
 }
 
 export function shortStellarAddress(
-  longAddress: string,
+  longAddress?: string,
   charsToShow = 4,
 ): string {
   if (!longAddress) return "";

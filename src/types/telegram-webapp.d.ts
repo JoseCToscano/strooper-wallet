@@ -57,6 +57,25 @@ interface BiometricManager {
   openSettings(): void;
 }
 
+interface HapticFeedback {
+  isSupported: boolean;
+
+  selectionChanged(): void;
+  impactOccurred(
+    style:
+      | "light"
+      | "medium"
+      | "heavy"
+      | "rigid"
+      | "soft"
+      | "success"
+      | "warning"
+      | "error"
+      | "selectionChanged",
+  ): void;
+  notificationOccurred(type: "success" | "warning" | "error"): void;
+}
+
 interface WebApp {
   initData: string;
   initDataUnsafe: WebAppInitData;
@@ -73,6 +92,7 @@ interface WebApp {
   BackButton: any;
   MainButton: any;
   BiometricManager: BiometricManager;
+  HapticFeedback: HapticFeedback;
 
   ready(): void;
   close(): void;

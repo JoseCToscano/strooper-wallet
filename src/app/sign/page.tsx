@@ -12,10 +12,6 @@ export default function SignTransaction() {
   const { connect, transfer } = useSigner();
   const { contractId } = useContractStore();
 
-  useEffect(() => {
-    connect().then(toast.success("Connected to wallet")).catch(toast.error);
-  }, []);
-
   return (
     <div className="flex min-h-screen items-center justify-center bg-zinc-100 p-4">
       <Card className="w-full max-w-md border-0 bg-white shadow-lg">
@@ -60,14 +56,18 @@ export default function SignTransaction() {
           <Button
             className="w-full bg-zinc-800 py-6 text-lg text-white transition-colors duration-300 hover:bg-zinc-900"
             size="lg"
-            onClick={() =>
-              transfer(
-                "GCLQTRLPMITD76LYTZA23E747YO2PEROCUUKT7AJ4V6UDXQAQNOYRERU",
-              )
-            }
+            onClick={async () => {
+              if (contractId) {
+                await transfer(
+                  "GCLQTRLPMITD76LYTZA23E747YO2PEROCUUKT7AJ4V6UDXQAQNOYRERU",
+                );
+              } else {
+                await connect();
+              }
+            }}
           >
             <Fingerprint className="mr-2 h-6 w-6" />
-            Sign with Biometrics
+            {contractId ? "Transfer" : "Connect"}
           </Button>
         </CardContent>
       </Card>
