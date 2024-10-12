@@ -38,7 +38,8 @@
     "superjson": "^2.2.1",
     "tailwind-merge": "^2.5.3",
     "tailwindcss-animate": "^1.0.7",
-    "zod": "^3.23.3"
+    "zod": "^3.23.3",
+    "zustand": "^5.0.0-rc.2"
   },
   "devDependencies": {
     "@types/eslint": "^8.56.10",

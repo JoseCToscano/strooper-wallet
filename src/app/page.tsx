@@ -4,21 +4,22 @@ import { Card, CardContent } from "~/components/ui/card";
 import { Button } from "~/components/ui/button";
 import { Fingerprint, Shield } from "lucide-react";
 import { api } from "~/trpc/react";
-import { Wallet } from "~/app/_components/wallet";
 import { useStrooper } from "~/hooks/useStrooper";
 import { shortStellarAddress } from "~/lib/utils";
 import { SelectWallet } from "~/app/_components/SelectWallet";
+import { useSessionStore } from "~/hooks/stores/useSessionStore";
+import LoadingDots from "~/components/icons/loading-dots";
+import { StrooperWallet } from "~/app/_components/StrooperWallet";
 
 export default function Home() {
-  const [user, setUser] = useState<WebAppUser | null>(null);
-  const [amount] = useState<number>(Math.floor(Math.random() * 1000) + 1);
   const [biometricAuthStatus, setBiometricAuthStatus] = useState<string>(
     "Checking biometrics...",
   );
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false); // Track authentication status
   const [authFailed, setAuthFailed] = useState<boolean>(false); // Track if authentication failed
   const [biometricAttempted, setBiometricAttempted] = useState<boolean>(false); // Track if biometrics were attempted
-  const { setTelegramUserId } = useStrooper();
+  const { user, isAuthenticated, setIsAuthenticated, setUser, clearSession } =
+    useSessionStore();
+
   const registerUser = api.telegram.saveUser.useMutation({
     onSuccess: (data) => {
       console.log("User registered successfully:", data);
@@ -151,7 +152,6 @@ export default function Home() {
               lastName: userData.last_name,
             });
             setUser(userData);
-            setTelegramUserId(userData.id);
           }
           authenticate(); // Trigger initial authentication only once
         }
@@ -183,56 +183,63 @@ export default function Home() {
   //   }
   // };
 
-  if (isAuthenticated) {
-    return <div>Auth content :)</div>;
-  }
-
   return (
     <div>
-      isAuthenticated: {String(isAuthenticated)}
-      <div className="flex min-h-screen items-center justify-center bg-zinc-100 p-4">
-        <Card className="w-full max-w-md border-0 bg-white shadow-lg">
-          <CardContent className="space-y-8 p-8">
-            <div className="space-y-2 text-center">
-              <Shield className="mx-auto mb-2 h-12 w-12 text-zinc-700" />
-              <h1 className="text-2xl font-semibold text-zinc-900">
-                Secure Access
-              </h1>
-              <p className="text-sm text-zinc-500">
-                Authenticate to view your wallet
-              </p>
-            </div>
-
-            <Button
-              className="w-full bg-zinc-800 py-6 text-lg text-white transition-colors duration-300 hover:bg-zinc-900"
-              size="lg"
-              onClick={handleRetry}
-            >
-              <Fingerprint className="mr-2 h-6 w-6" />
-              Authenticate
-            </Button>
-
-            {authFailed && (
-              <span className="">
-                <p className="text-sm text-red-500">
-                  Biometrics Auth failed. Please try again.
+      {isAuthenticated ? (
+        <StrooperWallet />
+      ) : (
+        <div className="flex min-h-screen items-center justify-center bg-zinc-100 p-4">
+          <Card className="w-full max-w-md border-0 bg-white shadow-lg">
+            <CardContent className="space-y-8 p-8">
+              <div className="space-y-2 text-center">
+                <Shield className="mx-auto mb-2 h-12 w-12 text-zinc-700" />
+                <h1 className="text-2xl font-semibold text-zinc-900">
+                  Secure Access
+                </h1>
+                <p className="text-sm text-zinc-500">
+                  Authenticate to view your wallet
                 </p>
-              </span>
-            )}
+              </div>
 
-            <div className="rounded-lg bg-zinc-50 p-4 text-sm">
-              <p className="font-mono text-zinc-700">
-                <span className="text-zinc-400">User:</span> {user?.first_name}{" "}
-                {user?.last_name}
-              </p>
-              <p className="font-mono text-zinc-700">
-                <span className="text-zinc-400">ID:</span> ••••••789
-              </p>
-              {JSON.stringify(user)}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+              <Button
+                className="w-full bg-zinc-800 py-6 text-lg text-white transition-colors duration-300 hover:bg-zinc-900"
+                size="lg"
+                onClick={handleRetry}
+              >
+                <Fingerprint className="mr-2 h-6 w-6" />
+                Authenticate
+              </Button>
+
+              {authFailed && (
+                <span className="">
+                  <p className="text-sm text-red-500">
+                    Biometrics Auth failed. Please try again.
+                  </p>
+                </span>
+              )}
+
+              <div className="rounded-lg bg-zinc-50 p-4 text-sm">
+                {user ? (
+                  <>
+                    <p className="font-mono text-zinc-700">
+                      <span className="text-zinc-400">User:</span>{" "}
+                      {user?.first_name} {user?.last_name}
+                    </p>
+                    <p className="font-mono text-zinc-700">
+                      <span className="text-zinc-400">Username:</span>{" "}
+                      {user?.username}
+                    </p>
+                  </>
+                ) : (
+                  <div className="flex items-center justify-center">
+                    <LoadingDots />
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </div>
   );
 }

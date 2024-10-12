@@ -33,7 +33,7 @@ export const Wallet: React.FC = () => {
   const [amount] = useState<number>(Math.floor(Math.random() * 1000) + 1);
   const [loading, setLoading] = useState(true);
   const [showQR, setShowQR] = useState(false);
-  const { publicKey, availableWallets, telegramUserId } = useStrooper();
+  // const { publicKey, availableWallets, telegramUserId } = useStrooper();
 
   const sessionCreator = api.telegram.session.useMutation({
     onSuccess: (data) => {
@@ -54,75 +54,75 @@ export const Wallet: React.FC = () => {
   });
 
   const paymentSignature = () => {
-    const domain = "https://0503fa22d87e.ngrok.app";
-    paymentSessionCreator
-      .mutateAsync({
-        telegramUserId: String(user!.id),
-        publicKey: "GCATIM6TLJ7DY26PI6CYYB2F2DD3WX3IO6ZGMC6PKWCYI7URNQXD75TI",
-        amount,
-        receiverAddress:
-          "GAU5J6CXFZXOG62FGGE7TF2F3QBJJRYS46YTLT2PGMF7CPP4XPW23SWQ",
-      })
-      .then((session) => {
-        const url = `${domain}/sign?sessionId=${session.id}`;
-        window.Telegram.WebApp.openLink(url);
-      })
-      .catch((error) => {
-        console.error("Error creating session:", error);
-      });
+    // const domain = "https://0503fa22d87e.ngrok.app";
+    // paymentSessionCreator
+    //   .mutateAsync({
+    //     telegramUserId: String(user!.id),
+    //     publicKey: "GCATIM6TLJ7DY26PI6CYYB2F2DD3WX3IO6ZGMC6PKWCYI7URNQXD75TI",
+    //     amount,
+    //     receiverAddress:
+    //       "GAU5J6CXFZXOG62FGGE7TF2F3QBJJRYS46YTLT2PGMF7CPP4XPW23SWQ",
+    //   })
+    //   .then((session) => {
+    //     const url = `${domain}/sign?sessionId=${session.id}`;
+    //     window.Telegram.WebApp.openLink(url);
+    //   })
+    //   .catch((error) => {
+    //     console.error("Error creating session:", error);
+    //   });
   };
 
   // Function to trigger the QR code scanner
   function scanQrCode() {
-    if (window?.Telegram && window?.Telegram?.WebApp) {
-      window.Telegram.WebApp.showScanQrPopup({
-        text: "Please scan the QR code",
-      });
-
-      // Listen for the event when QR code data is received
-      window.Telegram.WebApp.onEvent("qrTextReceived", (data) => {
-        if (data && data.data) {
-          console.log("QR code scanned:", data.data);
-          alert(`Scanned QR Code: ${data.data}`);
-        } else {
-          console.error("No data received from QR scan");
-        }
-      });
-
-      // Listen for when the QR scanner popup is closed
-      window.Telegram.WebApp.onEvent("scanQrPopupClosed", () => {
-        console.log("QR code scan popup closed");
-      });
-    } else {
-      console.error("Telegram WebApp is not available.");
-    }
+    // if (window?.Telegram && window?.Telegram?.WebApp) {
+    //   window.Telegram.WebApp.showScanQrPopup({
+    //     text: "Please scan the QR code",
+    //   });
+    //
+    //   // Listen for the event when QR code data is received
+    //   window.Telegram.WebApp.onEvent("qrTextReceived", (data) => {
+    //     if (data && data.data) {
+    //       console.log("QR code scanned:", data.data);
+    //       alert(`Scanned QR Code: ${data.data}`);
+    //     } else {
+    //       console.error("No data received from QR scan");
+    //     }
+    //   });
+    //
+    //   // Listen for when the QR scanner popup is closed
+    //   window.Telegram.WebApp.onEvent("scanQrPopupClosed", () => {
+    //     console.log("QR code scan popup closed");
+    //   });
+    // } else {
+    //   console.error("Telegram WebApp is not available.");
+    // }
   }
 
-  const { data: account } = api.telegram.accountData.useQuery({
-    publicKey,
-  });
-
-  const recentOperations = api.telegram.operations.useQuery({
-    id: publicKey,
-    limit: 25,
-  });
+  // const { data: account } = api.telegram.accountData.useQuery({
+  //   publicKey,
+  // });
+  //
+  // const recentOperations = api.telegram.operations.useQuery({
+  //   id: publicKey,
+  //   limit: 25,
+  // });
 
   const createPasskey = () => {
     redirectToBrowserForPasskey();
   };
 
   const redirectToBrowserForPasskey = () => {
-    const domain = "https://0503fa22d87e.ngrok.app";
-    console.log("user", user);
-    sessionCreator
-      .mutateAsync({ telegramUserId: String(user?.id) })
-      .then((session) => {
-        const url = `${domain}/passkey?sessionId=${session.id}`;
-        window.Telegram.WebApp.openLink(url);
-      })
-      .catch((error) => {
-        console.error("Error creating session:", error);
-      });
+    // const domain = "https://0503fa22d87e.ngrok.app";
+    // console.log("user", user);
+    // sessionCreator
+    //   .mutateAsync({ telegramUserId: String(user?.id) })
+    //   .then((session) => {
+    //     const url = `${domain}/passkey?sessionId=${session.id}`;
+    //     window.Telegram.WebApp.openLink(url);
+    //   })
+    //   .catch((error) => {
+    //     console.error("Error creating session:", error);
+    //   });
   };
 
   return (
@@ -145,16 +145,16 @@ export const Wallet: React.FC = () => {
         <Button
           className="w-full rounded-md border-[1px] border-zinc-800 p-2 text-lg text-zinc-800 transition-colors duration-300 hover:bg-zinc-900"
           onClick={() => {
-            window.Telegram.WebApp.BiometricManager.updateBiometricToken("");
-            setIsAuthenticated(false);
+            // window.Telegram.WebApp.BiometricManager.updateBiometricToken("");
+            // setIsAuthenticated(false);
           }}
         >
           Logout
         </Button>
-        telegram:{telegramUserId}
-        wallets: ({availableWallets.length}) publicKey:
-        {shortStellarAddress(publicKey ?? "")}
-        <SelectWallet availableWallets={availableWallets} />
+        {/*telegram:{telegramUserId}*/}
+        {/*wallets: ({availableWallets.length}) publicKey:*/}
+        {/*{shortStellarAddress(publicKey ?? "")}*/}
+        {/*<SelectWallet availableWallets={availableWallets} />*/}
         <Wallet />
       </div>
       <Card className="w-full max-w-md bg-white/90 backdrop-blur-sm">
@@ -162,7 +162,6 @@ export const Wallet: React.FC = () => {
           <CardTitle className="text-center text-2xl font-bold">
             Stellar Wallet
           </CardTitle>
-          availableWallets: {JSON.stringify(availableWallets)}
           <Button
             onClick={scanQrCode}
             variant="ghost"
@@ -200,7 +199,7 @@ export const Wallet: React.FC = () => {
             <div className="flex w-full items-center justify-center rounded-t-md bg-gray-100 p-4">
               {/* eslint-disable-next-line react/jsx-no-undef */}
               <Image
-                src={generateQrCode(publicKey ?? "")}
+                src={generateQrCode("publicKey ?? ")}
                 width="250"
                 height="250"
                 alt="QR Code"
@@ -209,26 +208,26 @@ export const Wallet: React.FC = () => {
               />
             </div>
           )}
-          <div
+          {/*<div
             className={cn(
               "mb-6 flex items-center justify-between rounded-b-md bg-gray-100 p-3",
               !showQR && "rounded-t-md",
             )}
           >
             <span className="text-sm text-gray-600">
-              {shortStellarAddress(publicKey ?? "")}
+              {shortStellarAddress("publicKey ??")}
             </span>
             <Button
-              onClick={() => copyToClipboard(publicKey ?? "")}
+              onClick={() => copyToClipboard("publicKey ??")}
               variant="ghost"
               size="icon"
             >
               <CopyIcon className="h-4 w-4" />
             </Button>
-          </div>
+          </div>*/}
           <div className="mb-6">
             <h3 className="mb-2 font-semibold">Your Assets</h3>
-            <ul className="space-y-2">
+            {/*<ul className="space-y-2">
               {(
                 account?.balances?.filter(
                   (b) => b.asset_type !== "native",
@@ -252,7 +251,7 @@ export const Wallet: React.FC = () => {
                   <span className="font-medium">{Number(asset.balance)}</span>
                 </li>
               ))}
-              {/*{tokens.map((token) => (
+              {tokens.map((token) => (
                 <li
                   key={token.id}
                   className="flex items-center justify-between rounded-md bg-gray-50 p-2"
@@ -266,23 +265,23 @@ export const Wallet: React.FC = () => {
                   </div>
                   <span className="font-medium">{token.balance}</span>
                 </li>
-              ))}*/}
-            </ul>
+              ))}
+            </ul>*/}
           </div>
           <div>
-            <div className="mb-2 flex items-center justify-between">
+            {/*<div className="mb-2 flex items-center justify-between">
               <h3 className="font-semibold">Recent Transactions</h3>
               <Button
                 onClick={() => {
-                  void recentOperations.refetch();
+                  // void recentOperations.refetch();
                 }}
                 variant="ghost"
                 size="icon"
               >
                 <RefreshCwIcon className="h-4 w-4" />
               </Button>
-            </div>
-            <ul className="space-y-2">
+            </div>*/}
+            {/*<ul className="space-y-2">
               {recentOperations.data?.map((op) => (
                 <li
                   key={op.id}
@@ -290,16 +289,16 @@ export const Wallet: React.FC = () => {
                 >
                   <div className="flex w-full items-center justify-center">
                     <div className="flex w-full items-center gap-2">
-                      {/*<Icons.StellarIcon width={15} height={15} />*/}
+                      <Icons.StellarIcon width={15} height={15} />
                       <span className="flex-grow text-sm">
                         {op.label}
-                        {/*<div className="text-gray-500">
+                        <div className="text-gray-500">
                           {op.asset_code && (
                             <Badge className="border-0 bg-gradient-to-br from-black to-gray-400 text-xs">
                               {op.asset_code}
                             </Badge>
                           )}
-                        </div>*/}
+                        </div>
                         <div className="ml-0.5 w-full">
                           {op.desc.split(",").map((d, i) => (
                             <div
@@ -326,7 +325,7 @@ export const Wallet: React.FC = () => {
                   </div>
                 </li>
               ))}
-            </ul>
+            </ul>*/}
           </div>
         </CardContent>
       </Card>
