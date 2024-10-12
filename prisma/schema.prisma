@@ -10,6 +10,13 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Signers {
+  id         String   @id @default(cuid())
+  signerId   String   @unique
+  contractId String
+  updatedAt  DateTime @updatedAt
+}
+
 model Session {
   id          String   @id @default(uuid()) // Unique session ID
   userId      String // Associate with user ID

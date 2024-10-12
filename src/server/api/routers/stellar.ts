@@ -37,6 +37,26 @@ export const stellarRouter = createTRPCRouter({
         ),
       };
     }),
+  saveSigner: publicProcedure
+    .input(z.object({ contractId: z.string(), signerId: z.string() }))
+    .mutation(async ({ input, ctx }) => {
+      return ctx.db.signers.create({
+        data: {
+          signerId: input.signerId,
+          contractId: input.contractId,
+        },
+      });
+    }),
+  getContractId: publicProcedure
+    .input(z.string())
+    .query(async ({ input, ctx }) => {
+      const signer = await ctx.db.signers.findFirstOrThrow({
+        where: {
+          signerId: input,
+        },
+      });
+      return signer.contractId;
+    }),
   send: publicProcedure
     .input(z.object({ xdr: z.string() }))
     .mutation(async ({ input }) => {

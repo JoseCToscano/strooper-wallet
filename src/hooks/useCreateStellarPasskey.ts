@@ -5,11 +5,18 @@ import { useKeyStore } from "~/hooks/stores/useKeyStore";
 import { account } from "~/lib/client-helpers";
 import { ClientTRPCErrorHandler } from "~/lib/utils";
 import toast from "react-hot-toast";
+import { useSessionStore } from "~/hooks/stores/useSessionStore";
 
 export const useCreateStellarPasskey = () => {
+  const { user: telegramUser } = useSessionStore();
   const [loading, setLoading] = useState(false);
   const setContractId = useContractStore((state) => state.setContractId);
   const setKeyId = useKeyStore((state) => state.setKeyId);
+
+  const saveSigner = api.stellar.saveSigner.useMutation({
+    onError: ClientTRPCErrorHandler,
+    onSuccess: () => toast.success("Successfully saved signer"),
+  });
 
   // Initialize tRPC mutation
   const {
@@ -36,19 +43,28 @@ export const useCreateStellarPasskey = () => {
         keyId_base64,
         contractId: cid,
         built,
-      } = await account.createWallet(user, user);
+      } = await account.createWallet(
+        user,
+        telegramUser?.username ?? "UserNotFound",
+      );
 
       // Use tRPC mutation to send the transaction to the Stellar network
       const result = await sendTransaction({
         xdr: built.toXDR(),
       });
       console.log("result", result);
-
+      console.log("result?.status", result?.status);
+      console.log(String(result?.status).toUpperCase() === "SUCCESS");
       if (result.success) {
         // Store keyId and contractId in Zustand store
         setKeyId(keyId_base64);
         setContractId(cid);
-
+        console.log("here");
+        await saveSigner.mutateAsync({
+          contractId: cid,
+          signerId: keyId_base64,
+        });
+        console.log("here 2");
         console.log("KeyId: ", keyId_base64);
         console.log("ContractId: ", cid);
       }
