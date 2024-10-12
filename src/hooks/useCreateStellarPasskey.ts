@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { api } from "~/trpc/react";
 import { useContractStore } from "~/hooks/stores/useContractStore";
 import { useKeyStore } from "~/hooks/stores/useKeyStore";
@@ -18,27 +18,10 @@ export const useCreateStellarPasskey = (strooperUser?: User) => {
   });
 
   // Initialize tRPC mutation
-  const {
-    mutateAsync: sendTransaction,
-    isLoading,
-    error,
-  } = api.stellar.send.useMutation({
+  const { mutateAsync: sendTransaction, error } = api.stellar.send.useMutation({
     onSuccess: () => toast.success("Successfully sent XDR to Stellar network"),
     onError: ClientTRPCErrorHandler,
   });
-
-  // Link generated Stellar Contract ID to the User's current session
-  const { mutateAsync: saveContractIdToSession } =
-    api.telegram.updateSession.useMutation({
-      onError: ClientTRPCErrorHandler,
-      onSuccess: () => toast.success("Successfully updated session"),
-    });
-
-  useEffect(() => {
-    if (isLoading) {
-      setLoading(true);
-    }
-  }, [isLoading]);
 
   // Create a function to handle the wallet creation process
   const create = async (): Promise<string> => {
@@ -58,7 +41,7 @@ export const useCreateStellarPasskey = (strooperUser?: User) => {
       const result = await sendTransaction({
         xdr: built.toXDR(),
       });
-      if (result.success) {
+      if (result?.success) {
         // Store keyId and contractId in Zustand store
         setKeyId(keyId_base64);
         setContractId(cid);

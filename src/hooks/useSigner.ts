@@ -5,18 +5,13 @@ import { useKeyStore } from "~/hooks/stores/useKeyStore";
 import { account, native, fundPubkey, fundSigner } from "~/lib/client-helpers";
 import { useGetContractId } from "~/hooks/useGetContractId";
 import toast from "react-hot-toast";
-import { env } from "~/env";
 
 export const useSigner = () => {
   const setContractId = useContractStore.getState().setContractId;
   const setKeyId = useKeyStore.getState().setKeyId;
   const { keyId } = useKeyStore.getState();
   const { contractId } = useContractStore.getState();
-  const {
-    mutateAsync: sendTransaction,
-    isLoading,
-    error,
-  } = api.stellar.send.useMutation({
+  const { mutateAsync: sendTransaction } = api.stellar.send.useMutation({
     onSuccess: () => toast.success("Successfully sent XDR to Stellar network"),
     onError: ClientTRPCErrorHandler,
   });
@@ -38,12 +33,9 @@ export const useSigner = () => {
 
       console.log("KeyId: ", keyId_base64);
       console.log("ContractId: ", cid);
-      toast.success(
-        `Successfully extracted contract: ${cid}`,
-        shortStellarAddress(cid),
-      );
-    } catch (err: any) {
-      alert(err.message);
+      toast.success(`Successfully extracted contract`);
+    } catch (err) {
+      alert((err as Error)?.message);
     }
   };
 
@@ -54,8 +46,6 @@ export const useSigner = () => {
         to,
         amount: BigInt(100 * 10_000_000),
       });
-
-      console.log("xdr: ", built.toXDR());
 
       await transfer.signAuthEntries({
         address: fundPubkey,
@@ -68,8 +58,8 @@ export const useSigner = () => {
       });
       console.log("result:", result);
       return result;
-    } catch (err: any) {
-      alert(err.message);
+    } catch (err) {
+      alert((err as Error)?.message);
     }
   };
 
@@ -99,8 +89,8 @@ export const useSigner = () => {
       console.log("after res");
       console.log("result:", result);
       return result;
-    } catch (err: any) {
-      alert(err.message);
+    } catch (err) {
+      alert((err as Error)?.message);
     }
   };
 
