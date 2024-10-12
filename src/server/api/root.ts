@@ -10,7 +10,6 @@ import { authRouter } from "~/server/api/routers/auth";
  * All routers added in /api/routers should be manually added here.
  */
 export const appRouter = createTRPCRouter({
-  post: postRouter,
   telegram: telegramRouter,
   stellar: stellarRouter,
   auth: authRouter,

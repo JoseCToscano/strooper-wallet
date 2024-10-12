@@ -35,7 +35,7 @@ function openDatabase(): Promise<IDBDatabase> {
       request.result.createObjectStore("keys");
     };
     request.onsuccess = () => resolve(request.result);
-    request.onerror = () => reject(request.error);
+    request.onerror = () => reject(request.error as Error);
   });
 }
 
@@ -52,7 +52,7 @@ export async function storeKey(keyId: string, key: CryptoKey): Promise<void> {
 
   return new Promise((resolve, reject) => {
     transaction.oncomplete = () => resolve();
-    transaction.onerror = () => reject(transaction.error);
+    transaction.onerror = () => reject(transaction.error as Error);
   });
 }
 
@@ -81,7 +81,7 @@ export async function getKey(keyId: string): Promise<CryptoKey> {
         reject(new Error("Key not found"));
       }
     };
-    request.onerror = () => reject(request.error);
+    request.onerror = () => reject(request.error as Error);
   });
 }
 
@@ -99,7 +99,7 @@ export async function storeCredentialId(
 
   return new Promise((resolve, reject) => {
     transaction.oncomplete = () => resolve();
-    transaction.onerror = () => reject(transaction.error);
+    transaction.onerror = () => reject(transaction.error as Error);
   });
 }
 
@@ -124,7 +124,7 @@ export async function getCredentialId(keyId: string): Promise<Uint8Array> {
         reject(new Error("Credential ID not found"));
       }
     };
-    request.onerror = () => reject(request.error);
+    request.onerror = () => reject(request.error as Error);
   });
 }
 
@@ -144,7 +144,7 @@ export async function storeData(
 
   return new Promise((resolve, reject) => {
     transaction.oncomplete = () => resolve();
-    transaction.onerror = () => reject(transaction.error);
+    transaction.onerror = () => reject(transaction.error as Error);
   });
 }
 
@@ -165,7 +165,7 @@ export async function getData(keyId: string): Promise<ArrayBuffer | null> {
         resolve(null);
       }
     };
-    request.onerror = () => reject(request.error);
+    request.onerror = () => reject(request.error as Error);
   });
 }
 
