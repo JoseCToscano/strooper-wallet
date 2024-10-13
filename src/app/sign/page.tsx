@@ -62,16 +62,6 @@ export default function SignTransaction() {
                   value={address}
                   onChange={(e) => setAddress(String(e.target.value ?? ""))}
                 />
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="icon"
-                  className="border-2 border-zinc-300 hover:bg-zinc-100"
-                  onClick={openQRScanner}
-                >
-                  <Camera className="h-4 w-4" />
-                  <span className="sr-only">Scan QR Code</span>
-                </Button>
               </div>
             </div>
           </div>
@@ -86,18 +76,22 @@ export default function SignTransaction() {
                   {shortStellarAddress(contractId ?? "")}
                 </span>
               </p>
-              <p className="flex justify-between">
-                <span className="text-zinc-500">To:</span>
-                <span className="font-mono text-zinc-700">
-                  {shortStellarAddress(address ?? "")}
-                </span>
-              </p>
-              <p className="flex justify-between">
-                <span className="text-zinc-500">Amount:</span>
-                <span className="font-mono text-zinc-700">
-                  {fromStroops(amount)} XLM
-                </span>
-              </p>
+              {address && (
+                <p className="flex justify-between">
+                  <span className="text-zinc-500">To:</span>
+                  <span className="font-mono text-zinc-700">
+                    {shortStellarAddress(address ?? "")}
+                  </span>
+                </p>
+              )}
+              {amount && (
+                <p className="flex justify-between">
+                  <span className="text-zinc-500">Amount:</span>
+                  <span className="font-mono text-zinc-700">
+                    {fromStroops(amount)} XLM
+                  </span>
+                </p>
+              )}
             </div>
           </div>
 
