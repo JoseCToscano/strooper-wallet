@@ -8,7 +8,13 @@ import { ClientTRPCErrorHandler } from "~/lib/utils";
 import { useState } from "react";
 import { useSessionStore } from "~/hooks/stores/useSessionStore";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
-import { AlertCircle, Fingerprint, Shield } from "lucide-react";
+import {
+  AlertCircle,
+  CheckCircle,
+  Fingerprint,
+  Key,
+  Shield,
+} from "lucide-react";
 
 interface CreatePasskeyProps {
   openUrl: (url: string) => void;
@@ -69,36 +75,28 @@ export const CreatePasskey: React.FC<CreatePasskeyProps> = ({
         <CardHeader className="flex items-center justify-center space-y-1">
           <Shield className="mb-2 h-8 w-8 text-zinc-700" />
           <CardTitle className="text-center text-2xl font-semibold text-zinc-900">
-            Passkey Configuration
+            Link Your Wallet
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
-          <div className="space-y-3 rounded-lg bg-zinc-50 p-4">
-            <h2 className="text-sm font-semibold text-zinc-700">
-              Passkey details
-            </h2>
-            <div className="space-y-2 text-sm">
-              <p className="flex justify-between">
-                <span className="text-zinc-500">Host:</span>
-                <span className="font-mono text-zinc-700">
-                  {env.NEXT_PUBLIC_APP_URL}
-                </span>
-              </p>
-              <p className="flex justify-between">
-                <span className="text-zinc-500">Telegram username</span>
-                <span className="font-mono text-zinc-700">
-                  {user?.username}
-                </span>
+          <p className="text-center text-zinc-600">
+            Generate a new passkey to securely access your Web3 wallet.
+          </p>
+
+          <div className="space-y-4">
+            <div className="flex items-start space-x-3">
+              <Key className="mt-0.5 h-5 w-5 flex-shrink-0 text-zinc-500" />
+              <p className="text-sm text-zinc-600">
+                Passkeys provide a secure, passwordless way to access your
+                wallet.
               </p>
             </div>
-          </div>
-
-          <div className="flex items-center space-x-3 rounded-lg bg-zinc-50 p-4">
-            <AlertCircle className="h-5 w-5 flex-shrink-0 text-zinc-500" />
-            <p className="text-xs text-zinc-600">
-              You will be redirected to a secure browser window to create your
-              passkey. You can later use this passkey to sign transactions.
-            </p>
+            <div className="flex items-start space-x-3">
+              <CheckCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-zinc-500" />
+              <p className="text-sm text-zinc-600">
+                Your passkey is unique to this device and cannot be transferred.
+              </p>
+            </div>
           </div>
 
           <Button
@@ -113,13 +111,30 @@ export const CreatePasskey: React.FC<CreatePasskeyProps> = ({
             ) : (
               <>
                 <Fingerprint className="mr-2 h-6 w-6" />
-                Create Passkey
+                Setup Passkey
               </>
             )}
           </Button>
 
+          <div className="space-y-3 rounded-lg bg-zinc-50 p-4">
+            <h2 className="text-sm font-semibold text-zinc-700">
+              What happens next?
+            </h2>
+            <ol className="list-inside list-decimal space-y-2 text-sm text-zinc-600">
+              <li>
+                Your will be redirected to a secure browser to create a passkey
+              </li>
+              <li>
+                Confirm the passkey using your device&quote;s authentication
+                method
+              </li>
+              <li>Your wallet will be securely linked to this passkey</li>
+            </ol>
+          </div>
+
           <p className="text-center text-xs text-zinc-500">
-            By signing, you agree to the terms of service and privacy policy.
+            By generating a passkey, you agree to our terms of service and
+            privacy policy.
           </p>
         </CardContent>
       </Card>
