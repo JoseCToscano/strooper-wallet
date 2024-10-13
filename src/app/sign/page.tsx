@@ -29,7 +29,7 @@ export default function SignTransaction() {
     return () => setShowSuccess(false);
   }, []);
 
-  if (showSuccess) {
+  if (showSuccess && amount && address) {
     return <TransactionConfirmation amount={amount} recipient={address} />;
   }
 
