@@ -57,17 +57,21 @@ export default function SignTransaction() {
             className="w-full bg-zinc-800 py-6 text-lg text-white transition-colors duration-300 hover:bg-zinc-900"
             size="lg"
             onClick={async () => {
-              if (contractId) {
-                await transfer(
-                  "GCLQTRLPMITD76LYTZA23E747YO2PEROCUUKT7AJ4V6UDXQAQNOYRERU",
-                );
-              } else {
-                await connect();
-              }
+              await transfer(
+                "GCLQTRLPMITD76LYTZA23E747YO2PEROCUUKT7AJ4V6UDXQAQNOYRERU",
+              );
             }}
           >
             <Fingerprint className="mr-2 h-6 w-6" />
-            {contractId ? "Transfer" : "Connect"}
+            Transfer
+          </Button>
+          <Button
+            className="w-full bg-zinc-800 py-6 text-lg text-white transition-colors duration-300 hover:bg-zinc-900"
+            size="lg"
+            onClick={connect}
+          >
+            <Fingerprint className="mr-2 h-6 w-6" />
+            Connect
           </Button>
         </CardContent>
       </Card>
