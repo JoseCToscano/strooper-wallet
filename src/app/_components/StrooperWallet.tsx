@@ -47,14 +47,14 @@ export const StrooperWallet: React.FC<StrooperWalletProps> = ({
     { enabled: !!contractId, refetchInterval: 5000 },
   );
 
-  // if (!contractId) {
-  //   return (
-  //     <CreatePasskey
-  //       openUrl={openUrl}
-  //       triggerHapticFeedback={triggerHapticFeedback}
-  //     />
-  //   );
-  // }
+  if (!contractId) {
+    return (
+      <CreatePasskey
+        openUrl={openUrl}
+        triggerHapticFeedback={triggerHapticFeedback}
+      />
+    );
+  }
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-zinc-100 p-4">
