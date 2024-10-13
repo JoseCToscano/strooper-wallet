@@ -119,7 +119,9 @@ export const StrooperWallet: React.FC<StrooperWalletProps> = ({
         {showQR && (
           <div className="flex w-full items-center justify-center rounded-t-md bg-gray-100 p-4">
             <Image
-              src={generateQrCode(String(user!.defaultContractAddress))}
+              src={generateQrCode(
+                `${env.NEXT_PUBLIC_APP_URL}/sign?to=${String(user!.defaultContractAddress)}`,
+              )}
               width="250"
               height="250"
               alt="QR Code"

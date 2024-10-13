@@ -12,6 +12,15 @@ const config = {
     "passkey-kit-sdk",
     "sac-sdk",
   ],
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "api.qrserver.com",
+        pathname: "**",
+      },
+    ],
+  },
 };
 
 export default config;

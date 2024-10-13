@@ -196,7 +196,7 @@ export function copyToClipboard(text: string, silence = false) {
 }
 
 export function generateQrCode(data: string): string {
-  const size = "100x100";
+  const size = "200x200";
   return `https://api.qrserver.com/v1/create-qr-code/?size=${size}&data=${encodeURIComponent(data)}`;
 }
 

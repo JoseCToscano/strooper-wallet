@@ -4,13 +4,16 @@ import { AlertCircle, Fingerprint, Shield } from "lucide-react";
 import { shortStellarAddress } from "~/lib/utils";
 import { useSigner } from "~/hooks/useSigner";
 import { useContractStore } from "~/hooks/stores/useContractStore";
-import { useEffect } from "react";
-import toast from "react-hot-toast";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
+import { useSearchParams } from "next/navigation";
 
 export default function SignTransaction() {
+  const searchParams = useSearchParams();
   const { connect, transfer } = useSigner();
   const { contractId } = useContractStore();
+
+  const amount = searchParams.get("amount");
+  const to = searchParams.get("to");
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-zinc-100 p-4">
@@ -36,7 +39,7 @@ export default function SignTransaction() {
               <p className="flex justify-between">
                 <span className="text-zinc-500">To:</span>
                 <span className="font-mono text-zinc-700">
-                  {shortStellarAddress("ABCCVBDDDDDDRERU")}
+                  {shortStellarAddress(to)}
                 </span>
               </p>
               <p className="flex justify-between">
@@ -57,13 +60,15 @@ export default function SignTransaction() {
             className="w-full bg-zinc-800 py-6 text-lg text-white transition-colors duration-300 hover:bg-zinc-900"
             size="lg"
             onClick={async () => {
-              await transfer(
-                "GCLQTRLPMITD76LYTZA23E747YO2PEROCUUKT7AJ4V6UDXQAQNOYRERU",
-              );
+              let recipient = to;
+              if (!recipient) {
+                recipient = prompt("Enter recipient address");
+              }
+              await transfer(recipient!);
             }}
           >
             <Fingerprint className="mr-2 h-6 w-6" />
-            Transferr
+            Transfer
           </Button>
           <Button
             className="w-full bg-zinc-800 py-6 text-lg text-white transition-colors duration-300 hover:bg-zinc-900"

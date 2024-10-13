@@ -265,9 +265,9 @@ export default function Home() {
         "qrTextReceived",
         (data: { data?: string }) => {
           if (data?.data) {
-            console.log("QR code scanned:", data.data);
-            alert(`Scanned QR Code: ${data.data}`);
+            openUrl(data.data);
           } else {
+            alert("No data received from QR scan");
             console.error("No data received from QR scan");
           }
         },
