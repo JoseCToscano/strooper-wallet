@@ -18,14 +18,8 @@ export default function Home() {
   const [isAuthenticating, setIsAuthenticating] = useState<boolean>(true); // Track if authentication is in progress
   const [authFailed, setAuthFailed] = useState<boolean>(false); // Track if authentication failed
   const [biometricAttempted, setBiometricAttempted] = useState<boolean>(false); // Track if biometrics were attempted
-  const {
-    user,
-    isAuthenticated,
-    setIsAuthenticated,
-    setUser,
-    clearSession,
-    setDefaultContractId,
-  } = useSessionStore();
+  const { user, isAuthenticated, setIsAuthenticated, setUser, clearSession } =
+    useSessionStore();
   const { setContractId } = useContractStore();
 
   const { data: updatedUser } = api.telegram.getUser.useQuery(
@@ -48,6 +42,10 @@ export default function Home() {
       console.error("Error registering user:", error);
     },
   });
+
+  useEffect(() => {
+    setContractId(null);
+  }, []);
 
   useEffect(() => {
     if (updatedUser?.defaultContractAddress) {
