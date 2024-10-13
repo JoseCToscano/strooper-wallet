@@ -1,12 +1,14 @@
 # Strooper Bot MiniApp
 
+![Strooper Bot Image](public/logo-fullname.png)
+
 [![Telegram](https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https://t.me/strooper_bot/strooper)](https://t.me/strooper_bot/strooper)
 
-Welcome to **Strooper Bot**, a Telegram MiniApp built to enhance your Telegram experience with web3 integrations. This bot acts as a non-custodial wallet and provides various decentralized features directly inside Telegram.
+Welcome to **Strooper Bot**, a Telegram MiniApp built to enhance your Telegram experience with Stellar integrations. This bot acts as a non-custodial wallet and provides various decentralized features directly inside Telegram.
 
 ## Features
 
-- **Non-custodial Wallet**: Manage your web3 assets directly from Telegram.
+- **Non-custodial Wallet**: Manage your stellar assets directly from Telegram.
 - **Passkey Integration**: Securely sign transactions using passkeys.
 - **MiniApp for Stellar**: Interact with Stellar blockchain assets seamlessly.
 
@@ -22,7 +24,7 @@ Alternatively, you can scan the QR code below to open it directly:
 [![Launch QR Code](https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https://t.me/strooper_bot/strooper)](https://t.me/strooper_bot/strooper)
 
 ### 2. Start the Bot
-Once in Telegram, click **Start** to begin interacting with the bot. The bot will guide you through setting up your wallet and managing your web3 assets.
+Once in Telegram, click **Start** to begin interacting with the bot. The bot will guide you through setting up your wallet and managing your Stellar assets.
 
 ### 3. Reopen the MiniApp
 After closing the app, you can relaunch it by typing `/start` in the bot’s chat or by clicking the link above.
