@@ -176,7 +176,8 @@ export const StrooperWallet: React.FC<StrooperWalletProps> = ({
             Last updated: 2 minutes ago
           </p>
 
-          {/* Removed Recent Transactions section */}
+          {showQR && <ReceiveMoney />}
+          {showSendMoneyForm && <SendMoneyForm openQRScanner={openQRScanner} />}
         </CardContent>
       </Card>
     </div>
