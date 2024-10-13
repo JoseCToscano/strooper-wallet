@@ -46,7 +46,10 @@ const NewPassKey: FC = () => {
 
   const createPasskey = async () => {
     setCreatingPasskey(true);
-    const contractId = await create();
+    const contractId = await create().catch((err) => {
+      setCreatingPasskey(false);
+      throw err;
+    });
     await linkContractIdToSession({
       sessionId: sessionId!,
       contractAddressId: contractId,
@@ -57,7 +60,10 @@ const NewPassKey: FC = () => {
 
   const connectPasskey = async () => {
     setConnectingPasskey(true);
-    const contractId = await connect();
+    const contractId = await connect().catch((err) => {
+      setConnectingPasskey(false);
+      throw err;
+    });
     await linkContractIdToSession({
       sessionId: sessionId!,
       contractAddressId: contractId,
