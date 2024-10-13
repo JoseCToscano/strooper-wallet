@@ -33,12 +33,14 @@ export const useCreateStellarPasskey = (strooperUser?: User) => {
         amount: BigInt(100 * 10_000_000),
       });
 
-      await transfer.signAuthEntries({
+      const a = await transfer.signAuthEntries({
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         address: fundPubkey,
         signAuthEntry: (auth) => fundSigner.signAuthEntry(auth),
       });
+
+      console.log("aaaa:", a);
 
       await sendTransaction({ xdr: built!.toXDR() });
       toast.success("Successfully funded wallet");
@@ -72,13 +74,13 @@ export const useCreateStellarPasskey = (strooperUser?: User) => {
         setKeyId(keyId_base64);
         setContractId(cid);
 
-        await Promise.all([
-          fundWallet(cid),
-          saveSigner.mutateAsync({
-            contractId: cid,
-            signerId: keyId_base64,
-          }),
-        ]);
+        console.log("funding wallet");
+        await saveSigner.mutateAsync({
+          contractId: cid,
+          signerId: keyId_base64,
+        });
+        await fundWallet(cid);
+        console.log("funded wallet");
         return cid;
       }
       throw new Error("Failed to create Stellar passkey");
