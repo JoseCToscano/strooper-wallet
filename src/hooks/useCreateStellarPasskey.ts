@@ -2,7 +2,7 @@ import { useState } from "react";
 import { api } from "~/trpc/react";
 import { useContractStore } from "~/hooks/stores/useContractStore";
 import { useKeyStore } from "~/hooks/stores/useKeyStore";
-import { account } from "~/lib/client-helpers";
+import { account, fundPubkey, fundSigner, native } from "~/lib/client-helpers";
 import { ClientTRPCErrorHandler } from "~/lib/utils";
 import toast from "react-hot-toast";
 import { User } from "@prisma/client";
@@ -22,6 +22,32 @@ export const useCreateStellarPasskey = (strooperUser?: User) => {
     onSuccess: () => toast.success("Successfully sent XDR to Stellar network"),
     onError: ClientTRPCErrorHandler,
   });
+
+  const fundWallet = async (contractId: string) => {
+    try {
+      setLoading(true);
+
+      const { built, ...transfer } = await native.transfer({
+        to: contractId,
+        from: fundPubkey,
+        amount: BigInt(100 * 10_000_000),
+      });
+
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      await transfer.signAuthEntries({
+        address: fundPubkey,
+        signAuthEntry: (auth) => fundSigner.signAuthEntry(auth),
+      });
+
+      await sendTransaction({ xdr: built!.toXDR() });
+      toast.success("Successfully funded wallet");
+    } catch (err) {
+      toast.error((err as Error)?.message ?? "Failed to fund wallet");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Create a function to handle the wallet creation process
   const create = async (): Promise<string> => {
@@ -45,10 +71,14 @@ export const useCreateStellarPasskey = (strooperUser?: User) => {
         // Store keyId and contractId in Zustand store
         setKeyId(keyId_base64);
         setContractId(cid);
-        await saveSigner.mutateAsync({
-          contractId: cid,
-          signerId: keyId_base64,
-        });
+
+        await Promise.all([
+          fundWallet(cid),
+          saveSigner.mutateAsync({
+            contractId: cid,
+            signerId: keyId_base64,
+          }),
+        ]);
         return cid;
       }
       throw new Error("Failed to create Stellar passkey");
