@@ -11,9 +11,11 @@ import LoadingCard from "~/app/_components/LoadingCard";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { ClientTRPCErrorHandler } from "~/lib/utils";
 import toast from "react-hot-toast";
+import { useSigner } from "~/hooks/useSigner";
 
 const NewPassKey: FC = () => {
   const [creatingPasskey, setCreatingPasskey] = useState(false);
+  const [connectingPasskey, setConnectingPasskey] = useState(false);
   const searchParams = useSearchParams();
   const sessionId = searchParams.get("sessionId");
 
@@ -36,9 +38,11 @@ const NewPassKey: FC = () => {
     session.data?.user,
   );
 
-  if (session.isLoading || !session?.data?.user) {
-    return <LoadingCard />;
-  }
+  const { connect } = useSigner();
+
+  // if (session.isLoading || !session?.data?.user) {
+  //   return <LoadingCard />;
+  // }
 
   const createPasskey = async () => {
     setCreatingPasskey(true);
@@ -48,6 +52,17 @@ const NewPassKey: FC = () => {
       contractAddressId: contractId,
     });
     setCreatingPasskey(false);
+    window.location.href = env.NEXT_PUBLIC_TELEGRAM_BOT_URL;
+  };
+
+  const connectPasskey = async () => {
+    setConnectingPasskey(true);
+    const contractId = await connect();
+    await linkContractIdToSession({
+      sessionId: sessionId!,
+      contractAddressId: contractId,
+    });
+    setConnectingPasskey(false);
     window.location.href = env.NEXT_PUBLIC_TELEGRAM_BOT_URL;
   };
 
@@ -91,6 +106,9 @@ const NewPassKey: FC = () => {
           </div>
 
           <Button
+            disabled={
+              loadingPasskeySession || creatingPasskey || connectingPasskey
+            }
             onClick={createPasskey}
             className="w-full bg-zinc-800 py-6 text-lg text-white transition-colors duration-300 hover:bg-zinc-900"
             size="lg"
@@ -102,7 +120,26 @@ const NewPassKey: FC = () => {
             ) : (
               <>
                 <Fingerprint className="mr-2 h-6 w-6" />
-                Create Passkey
+                Create New Passkey
+              </>
+            )}
+          </Button>
+          <Button
+            disabled={
+              loadingPasskeySession || creatingPasskey || connectingPasskey
+            }
+            onClick={connectPasskey}
+            className="w-full bg-zinc-800 py-6 text-lg text-white transition-colors duration-300 hover:bg-zinc-900"
+            size="lg"
+          >
+            {connectingPasskey ? (
+              <>
+                <LoadingDots color="white" />
+              </>
+            ) : (
+              <>
+                <Fingerprint className="mr-2 h-6 w-6" />
+                Connect Passkey
               </>
             )}
           </Button>

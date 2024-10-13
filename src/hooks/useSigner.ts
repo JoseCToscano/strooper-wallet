@@ -18,7 +18,7 @@ export const useSigner = () => {
 
   const { getContractId } = useGetContractId();
 
-  const connect = async () => {
+  const connect = async (): Promise<string> => {
     try {
       const {
         keyId: kid,
@@ -34,8 +34,10 @@ export const useSigner = () => {
       console.log("KeyId: ", keyId_base64);
       console.log("ContractId: ", cid);
       toast.success(`Successfully extracted contract`);
+      return cid;
     } catch (err) {
       alert((err as Error)?.message);
+      throw err;
     }
   };
 

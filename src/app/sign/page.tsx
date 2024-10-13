@@ -39,7 +39,7 @@ export default function SignTransaction() {
               <p className="flex justify-between">
                 <span className="text-zinc-500">To:</span>
                 <span className="font-mono text-zinc-700">
-                  {shortStellarAddress(to)}
+                  {shortStellarAddress(to ?? "")}
                 </span>
               </p>
               <p className="flex justify-between">
