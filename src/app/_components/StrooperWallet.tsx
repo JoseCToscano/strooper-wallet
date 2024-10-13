@@ -1,6 +1,6 @@
 import { Button } from "~/components/ui/button";
 import Image from "next/image";
-import { ArrowDownIcon, ArrowUpIcon, ScanIcon } from "lucide-react";
+import { ArrowDownIcon, ArrowUpIcon, Camera, ScanIcon } from "lucide-react";
 import { useState } from "react";
 import { Card, CardContent, CardHeader } from "~/components/ui/card";
 import { ClientTRPCErrorHandler, generateQrCode } from "~/lib/utils";
@@ -10,6 +10,9 @@ import { env } from "~/env";
 import { api } from "~/trpc/react";
 import toast from "react-hot-toast";
 import { CreatePasskey } from "~/app/_components/CreatePasskey";
+import SendMoneyForm from "~/app/_components/SendMoneyForm";
+import ReceiveMoney from "~/app/_components/ReceiveMoney";
+import { useContractStore } from "~/hooks/stores/useContractStore";
 
 interface StrooperWalletProps {
   openUrl: (url: string) => void;
@@ -36,8 +39,15 @@ export const StrooperWallet: React.FC<StrooperWalletProps> = ({
   openQRScanner,
 }) => {
   const [showQR, setShowQR] = useState(false);
+  const [showSendMoneyForm, setShowSendMoneyForm] = useState(false);
   const [amount] = useState<number>(Math.floor(Math.random() * 100));
   const { user } = useSessionStore();
+  const { contractId } = useContractStore();
+
+  const { data: balance } = api.stellar.getBalance.useQuery(
+    { contractAddress: String(contractId) },
+    { enabled: !!contractId },
+  );
 
   const signSession = api.telegram.session.useMutation({
     onError: ClientTRPCErrorHandler,
@@ -81,7 +91,7 @@ export const StrooperWallet: React.FC<StrooperWalletProps> = ({
           className="absolute right-2 top-2"
           aria-label="Scan QR Code"
         >
-          <ScanIcon className="h-5 w-5" />
+          <Camera className="h-4 w-4" />
         </Button>
         <Button
           onClick={onLogout}
@@ -96,19 +106,26 @@ export const StrooperWallet: React.FC<StrooperWalletProps> = ({
       <CardContent className="space-y-8 p-8">
         <div className="mb-6 text-center">
           <p className="mb-1 text-sm text-gray-500">Your Balance</p>
-          <h2 className="text-4xl font-bold">1001.1234 XLM</h2>
+          <h2 className="text-4xl font-bold">{balance} XLM</h2>
         </div>
         <div className="mb-6 flex justify-between">
           <Button
-            onClick={transferXLM}
+            onClick={() => {
+              setShowQR(false);
+              setShowSendMoneyForm(!showSendMoneyForm);
+            }}
             title="Coming soon"
             variant="outline"
             className="w-[48%]"
           >
-            <ArrowUpIcon className="mr-2 h-4 w-4" /> Send
+            {!showSendMoneyForm && <ArrowUpIcon className="mr-2 h-4 w-4" />}
+            {showSendMoneyForm ? "Hide" : "Send"}
           </Button>
           <Button
-            onClick={() => setShowQR(!showQR)}
+            onClick={() => {
+              setShowSendMoneyForm(false);
+              setShowQR(!showQR);
+            }}
             variant="outline"
             className="w-[48%]"
           >
@@ -116,24 +133,8 @@ export const StrooperWallet: React.FC<StrooperWalletProps> = ({
             {showQR ? "Hide QR" : "Receive"}
           </Button>
         </div>
-        {showQR && (
-          <div className="flex w-full items-center justify-center rounded-t-md bg-gray-100 p-4">
-            <Image
-              src={generateQrCode(
-                `${env.NEXT_PUBLIC_APP_URL}/sign?to=${String(user!.defaultContractAddress)}`,
-              )}
-              width="250"
-              height="250"
-              alt="QR Code"
-              className="rounded-md"
-              style={{ aspectRatio: "200/200", objectFit: "cover" }}
-            />
-          </div>
-        )}
-
-        <div className="mb-6">
-          <h3 className="mb-2 font-semibold">Your Assets</h3>
-        </div>
+        {showQR && <ReceiveMoney />}
+        {showSendMoneyForm && <SendMoneyForm openQRScanner={openQRScanner} />}
       </CardContent>
     </Card>
   );

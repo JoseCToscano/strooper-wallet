@@ -306,7 +306,14 @@ export default function Home() {
             <Card className="w-full max-w-md border-0 bg-white shadow-lg">
               <CardContent className="space-y-8 p-8">
                 <div className="space-y-2 text-center">
-                  <Shield className="mx-auto h-12 w-12 text-zinc-800" />
+                  <Image
+                    className="mx-auto my-0"
+                    src={"/helmet-black.png"}
+                    alt="Strooper Logo"
+                    width={65}
+                    height={65}
+                  />
+                  {/*<Shield className="mx-auto h-12 w-12 text-zinc-800" />*/}
                   <h1 className="flex items-center justify-center text-2xl font-semibold text-zinc-900">
                     Secure Access
                   </h1>
@@ -364,13 +371,6 @@ export default function Home() {
             </Card>
           </div>
           <div className="flex -translate-y-4 flex-row items-center justify-center p-0">
-            <Image
-              className=""
-              src="/helmet-logo.png"
-              alt="Strooper Logo"
-              width={30}
-              height={30}
-            />
             <h1 className="8xl font-bold">Strooper Wallet</h1>
           </div>
         </div>

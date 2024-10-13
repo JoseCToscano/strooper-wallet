@@ -1,14 +1,8 @@
 import { z } from "zod";
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
 import { getHorizonServerUrl, handleHorizonServerError } from "~/lib/utils";
-import {
-  Horizon,
-  Networks,
-  Transaction,
-  TransactionBuilder,
-} from "@stellar/stellar-sdk";
+import { Asset, Horizon, Networks } from "@stellar/stellar-sdk";
 import { account } from "~/lib/server-helpers";
-import { rpc } from "~/lib/client-helpers";
 
 export const stellarRouter = createTRPCRouter({
   details: publicProcedure
@@ -74,5 +68,16 @@ export const stellarRouter = createTRPCRouter({
         // This will throw a TRPCError with the appropriate message
         handleHorizonServerError(e);
       }
+    }),
+  getBalance: publicProcedure
+    .input(z.object({ contractAddress: z.string() }))
+    .query(async ({ input }) => {
+      const balance = await account.rpc?.getSACBalance(
+        input.contractAddress,
+        Asset.native(),
+        Networks.TESTNET,
+      );
+      console.log("balance", balance);
+      return balance?.balanceEntry?.amount ?? "0";
     }),
 });

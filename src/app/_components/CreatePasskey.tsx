@@ -125,7 +125,7 @@ export const CreatePasskey: React.FC<CreatePasskeyProps> = ({
                 You will be redirected to a secure browser to create a passkey
               </li>
               <li>
-                Confirm the passkey using your device&quote;s authentication
+                Confirm the passkey using your device&apos;s authentication
                 method
               </li>
               <li>Your wallet will be securely linked to this passkey</li>
