@@ -1,21 +1,9 @@
 import { Button } from "~/components/ui/button";
-import {
-  ArrowDownIcon,
-  ArrowUpIcon,
-  Camera,
-  Download,
-  Eye,
-  EyeOff,
-  Send,
-} from "lucide-react";
+import { ArrowUpIcon, Camera, Download, Eye, EyeOff, Send } from "lucide-react";
 import { useState } from "react";
 import { Card, CardContent, CardHeader } from "~/components/ui/card";
-import { ClientTRPCErrorHandler, fromStroops } from "~/lib/utils";
-import { useSessionStore } from "~/hooks/stores/useSessionStore";
-
-import { env } from "~/env";
+import { fromStroops, shortStellarAddress } from "~/lib/utils";
 import { api } from "~/trpc/react";
-import toast from "react-hot-toast";
 import { CreatePasskey } from "~/app/_components/CreatePasskey";
 import SendMoneyForm from "~/app/_components/SendMoneyForm";
 import ReceiveMoney from "~/app/_components/ReceiveMoney";
@@ -48,7 +36,6 @@ export const StrooperWallet: React.FC<StrooperWalletProps> = ({
   const [isBalanceHidden, setIsBalanceHidden] = useState(false);
   const [showQR, setShowQR] = useState(false);
   const [showSendMoneyForm, setShowSendMoneyForm] = useState(false);
-  const { user } = useSessionStore();
   const { contractId } = useContractStore();
 
   const toggleBalanceVisibility = () => {
@@ -59,20 +46,6 @@ export const StrooperWallet: React.FC<StrooperWalletProps> = ({
     { contractAddress: String(contractId) },
     { enabled: !!contractId, refetchInterval: 5000 },
   );
-
-  const signSession = api.telegram.session.useMutation({
-    onError: ClientTRPCErrorHandler,
-    onSuccess: () => toast.success("Sign ession created"),
-  });
-
-  const transferXLM = async () => {
-    const sessionData = await signSession.mutateAsync({
-      telegramUserId: user!.id,
-    });
-    if (sessionData) {
-      openUrl(`${env.NEXT_PUBLIC_APP_URL}/sign?sessionId=${sessionData.id}`);
-    }
-  };
 
   if (!contractId) {
     return (
@@ -110,6 +83,7 @@ export const StrooperWallet: React.FC<StrooperWalletProps> = ({
           <div className="rounded-lg bg-zinc-50 p-6 text-center">
             <h2 className="mb-2 text-sm font-medium text-zinc-500">
               Current Balance
+              {shortStellarAddress(contractId)}
             </h2>
             <div className="flex items-center justify-center space-x-2">
               <p className="text-4xl font-bold text-zinc-900">
