@@ -8,6 +8,7 @@ import { useSessionStore } from "~/hooks/stores/useSessionStore";
 import LoadingDots from "~/components/icons/loading-dots";
 import { StrooperWallet } from "~/app/_components/StrooperWallet";
 import Image from "next/image";
+import { useContractStore } from "~/hooks/stores/useContractStore";
 
 export default function Home() {
   const [isTelegramAppReady, setIsTelegramAppReady] = useState<boolean>(false);
@@ -25,11 +26,17 @@ export default function Home() {
     clearSession,
     setDefaultContractId,
   } = useSessionStore();
+  const { setContractId } = useContractStore();
 
   const { data: updatedUser } = api.telegram.getUser.useQuery(
     { telegramUserId: String(user?.id) },
     {
       enabled: !!user?.id,
+      refetchIntervalInBackground: true,
+      refetchInterval: 5000,
+      refetchOnMount: true,
+      refetchOnReconnect: true,
+      refetchOnWindowFocus: true,
     },
   );
 
@@ -42,20 +49,9 @@ export default function Home() {
     },
   });
 
-  const test = api.stellar.details.useQuery({
-    id: "CAEZYXRIPT3Y2TDBSUREH2TCKBMONZW7T2BGW2QOJ2DMLMMFXVN7GUNX",
-    network: "Testnet",
-  });
-
-  useEffect(() => {
-    if (test.data) {
-      console.log("Test data: ", test.data);
-    }
-  }, [test.data]);
-
   useEffect(() => {
     if (updatedUser?.defaultContractAddress) {
-      setDefaultContractId(updatedUser?.defaultContractAddress);
+      setContractId(updatedUser?.defaultContractAddress);
     }
   }, [updatedUser]);
 

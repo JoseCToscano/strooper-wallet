@@ -1,9 +1,8 @@
 import { Button } from "~/components/ui/button";
-import Image from "next/image";
-import { ArrowDownIcon, ArrowUpIcon, Camera, ScanIcon } from "lucide-react";
+import { ArrowDownIcon, ArrowUpIcon, Camera } from "lucide-react";
 import { useState } from "react";
 import { Card, CardContent, CardHeader } from "~/components/ui/card";
-import { ClientTRPCErrorHandler, generateQrCode } from "~/lib/utils";
+import { ClientTRPCErrorHandler } from "~/lib/utils";
 import { useSessionStore } from "~/hooks/stores/useSessionStore";
 
 import { env } from "~/env";
@@ -106,7 +105,9 @@ export const StrooperWallet: React.FC<StrooperWalletProps> = ({
       <CardContent className="space-y-8 p-8">
         <div className="mb-6 text-center">
           <p className="mb-1 text-sm text-gray-500">Your Balance</p>
-          <h2 className="text-4xl font-bold">{balance} XLM</h2>
+          <h2 className="text-4xl font-bold">
+            {balance} XLM {contractId}
+          </h2>
         </div>
         <div className="mb-6 flex justify-between">
           <Button
