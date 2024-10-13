@@ -1,29 +1,67 @@
-# Create T3 App
+# Strooper Bot MiniApp
 
-This is a [T3 Stack](https://create.t3.gg/) project bootstrapped with `create-t3-app`.
+[![Telegram](https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https://t.me/strooper_bot/strooper)](https://t.me/strooper_bot/strooper)
 
-## What's next? How do I make an app with this?
+Welcome to **Strooper Bot**, a Telegram MiniApp built to enhance your Telegram experience with web3 integrations. This bot acts as a non-custodial wallet and provides various decentralized features directly inside Telegram.
 
-We try to keep this project as simple as possible, so you can start with just the scaffolding we set up for you, and add additional things later when they become necessary.
+## Features
 
-If you are not familiar with the different technologies used in this project, please refer to the respective docs. If you still are in the wind, please join our [Discord](https://t3.gg/discord) and ask for help.
+- **Non-custodial Wallet**: Manage your web3 assets directly from Telegram.
+- **Passkey Integration**: Securely sign transactions using passkeys.
+- **MiniApp for Stellar**: Interact with Stellar blockchain assets seamlessly.
 
-- [Next.js](https://nextjs.org)
-- [NextAuth.js](https://next-auth.js.org)
-- [Prisma](https://prisma.io)
-- [Drizzle](https://orm.drizzle.team)
-- [Tailwind CSS](https://tailwindcss.com)
-- [tRPC](https://trpc.io)
+## How to Use
 
-## Learn More
+### 1. Launch the App
+You can scan the QR code or click the link below to launch the bot directly in Telegram:
 
-To learn more about the [T3 Stack](https://create.t3.gg/), take a look at the following resources:
+[Launch Strooper Bot](https://t.me/strooper_bot/strooper)
 
-- [Documentation](https://create.t3.gg/)
-- [Learn the T3 Stack](https://create.t3.gg/en/faq#what-learning-resources-are-currently-available) — Check out these awesome tutorials
+Alternatively, you can scan the QR code below to open it directly:
 
-You can check out the [create-t3-app GitHub repository](https://github.com/t3-oss/create-t3-app) — your feedback and contributions are welcome!
+[![Launch QR Code](https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https://t.me/strooper_bot/strooper)](https://t.me/strooper_bot/strooper)
 
-## How do I deploy this?
+### 2. Start the Bot
+Once in Telegram, click **Start** to begin interacting with the bot. The bot will guide you through setting up your wallet and managing your web3 assets.
 
-Follow our deployment guides for [Vercel](https://create.t3.gg/en/deployment/vercel), [Netlify](https://create.t3.gg/en/deployment/netlify) and [Docker](https://create.t3.gg/en/deployment/docker) for more information.
+### 3. Reopen the MiniApp
+After closing the app, you can relaunch it by typing `/start` in the bot’s chat or by clicking the link above.
+
+## Video Demo
+
+Here’s a quick video walkthrough of how the Strooper Bot MiniApp works:
+
+<iframe src="https://www.loom.com/embed/a7b8b0d2dae4435c8463734e7eacf0a7?sid=3e28296e-a2eb-4943-b68a-69a37c2d3bc9" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen style="width:100%; height:400px;"></iframe>
+
+## Development
+
+This project is built using:
+
+- **Next.js** with the App Router
+- **TypeScript**
+- **Telegram Bot API** for handling commands and interactions
+- **Stellar SDK** for blockchain integrations
+
+### Running Locally
+
+To run this project locally:
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/yourusername/strooper-bot.git
+Install dependencies:
+
+bash
+Copiar código
+npm install
+Create a .env.local file in the root directory and add your environment variables, including your Telegram bot token:
+
+env
+Copiar código
+TELEGRAM_BOT_TOKEN=your-telegram-bot-token
+Run the development server:
+
+bash
+Copiar código
+npm run dev
+The app will be available at http://localhost:3000.
