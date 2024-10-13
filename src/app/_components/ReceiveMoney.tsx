@@ -5,7 +5,7 @@ import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { Shield, Share2, Copy } from "lucide-react";
 import { useContractStore } from "~/hooks/stores/useContractStore";
-import { generateQrCode } from "~/lib/utils";
+import { generateQrCode, shortStellarAddress } from "~/lib/utils";
 import { env } from "~/env";
 import Image from "next/image";
 
@@ -61,7 +61,7 @@ export default function ReceiveMoney() {
             <Input
               id="address"
               type="text"
-              value={walletAddress ?? ""}
+              value={shortStellarAddress(walletAddress ?? "")}
               readOnly
               className="border-zinc-300 focus:border-zinc-500 focus:ring-zinc-500"
             />

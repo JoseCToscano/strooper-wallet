@@ -375,3 +375,7 @@ function parsedTransactionFailedError(
   }
   return message;
 }
+
+export function fromStroops(stroops: string): number {
+  return (Number(stroops) / 10_000_000).toFixed(7);
+}

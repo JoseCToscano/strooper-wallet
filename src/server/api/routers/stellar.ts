@@ -72,6 +72,7 @@ export const stellarRouter = createTRPCRouter({
   getBalance: publicProcedure
     .input(z.object({ contractAddress: z.string() }))
     .query(async ({ input }) => {
+      console.log("fetching balance for contract", input.contractAddress);
       const balance = await account.rpc?.getSACBalance(
         input.contractAddress,
         Asset.native(),
