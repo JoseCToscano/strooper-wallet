@@ -14,17 +14,6 @@ export const stellarRouter = createTRPCRouter({
   details: publicProcedure
     .input(z.object({ id: z.string(), network: z.string() }))
     .query(async ({ input }) => {
-      console.log("fetching details for contract");
-      const ctc = await rpc.getContractData(
-        "CAEZYXRIPT3Y2TDBSUREH2TCKBMONZW7T2BGW2QOJ2DMLMMFXVN7GUNX",
-      );
-      console.log("ctc:", ctc);
-
-      const acc = await rpc.getAccount(
-        "CAEZYXRIPT3Y2TDBSUREH2TCKBMONZW7T2BGW2QOJ2DMLMMFXVN7GUNX",
-      );
-      console.log("acc:", acc);
-
       const server = new Horizon.Server(getHorizonServerUrl(input.network));
       // the JS SDK uses promises for most actions, such as retrieving an account
       const account = await server.loadAccount(input.id);
