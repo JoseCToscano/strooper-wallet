@@ -42,7 +42,7 @@ export default function SignTransaction() {
                 type="number"
                 placeholder="0.00"
                 className="border-zinc-300 focus:border-zinc-500 focus:ring-zinc-500"
-                value={amount}
+                value={String(amount)}
                 onChange={(e) => setAmount(String(e.target.value ?? ""))}
               />
             </div>
@@ -59,7 +59,7 @@ export default function SignTransaction() {
                   type="text"
                   placeholder="Enter recipient address"
                   className="border-zinc-300 focus:border-zinc-500 focus:ring-zinc-500"
-                  value={address}
+                  value={String(address)}
                   onChange={(e) => setAddress(String(e.target.value ?? ""))}
                 />
               </div>
