@@ -40,9 +40,9 @@ const NewPassKey: FC = () => {
 
   const { connect } = useSigner();
 
-  // if (session.isLoading || !session?.data?.user) {
-  //   return <LoadingCard />;
-  // }
+  if (session.isLoading || !session?.data?.user) {
+    return <LoadingCard />;
+  }
 
   const createPasskey = async () => {
     setCreatingPasskey(true);
