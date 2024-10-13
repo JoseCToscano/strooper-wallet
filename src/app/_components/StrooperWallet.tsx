@@ -14,6 +14,7 @@ import { CreatePasskey } from "~/app/_components/CreatePasskey";
 interface StrooperWalletProps {
   openUrl: (url: string) => void;
   onLogout: () => void;
+  openQRScanner: () => void;
   triggerHapticFeedback?: (
     style:
       | "light"
@@ -32,6 +33,7 @@ export const StrooperWallet: React.FC<StrooperWalletProps> = ({
   openUrl,
   onLogout,
   triggerHapticFeedback,
+  openQRScanner,
 }) => {
   const [showQR, setShowQR] = useState(false);
   const [amount] = useState<number>(Math.floor(Math.random() * 100));
@@ -60,50 +62,6 @@ export const StrooperWallet: React.FC<StrooperWalletProps> = ({
     }
   };
 
-  const paymentSignature = () => {
-    // const domain = "https://0503fa22d87e.ngrok.app";
-    // paymentSessionCreator
-    //   .mutateAsync({
-    //     telegramUserId: String(user!.id),
-    //     publicKey: "GCATIM6TLJ7DY26PI6CYYB2F2DD3WX3IO6ZGMC6PKWCYI7URNQXD75TI",
-    //     amount,
-    //     receiverAddress:
-    //       "GAU5J6CXFZXOG62FGGE7TF2F3QBJJRYS46YTLT2PGMF7CPP4XPW23SWQ",
-    //   })
-    //   .then((session) => {
-    //     const url = `${domain}/sign?sessionId=${session.id}`;
-    //     window.Telegram.WebApp.openLink(url);
-    //   })
-    //   .catch((error) => {
-    //     console.error("Error creating session:", error);
-    //   });
-  };
-
-  function scanQrCode() {
-    // if (window?.Telegram && window?.Telegram?.WebApp) {
-    //   window.Telegram.WebApp.showScanQrPopup({
-    //     text: "Please scan the QR code",
-    //   });
-    //
-    //   // Listen for the event when QR code data is received
-    //   window.Telegram.WebApp.onEvent("qrTextReceived", (data) => {
-    //     if (data && data.data) {
-    //       console.log("QR code scanned:", data.data);
-    //       alert(`Scanned QR Code: ${data.data}`);
-    //     } else {
-    //       console.error("No data received from QR scan");
-    //     }
-    //   });
-    //
-    //   // Listen for when the QR scanner popup is closed
-    //   window.Telegram.WebApp.onEvent("scanQrPopupClosed", () => {
-    //     console.log("QR code scan popup closed");
-    //   });
-    // } else {
-    //   console.error("Telegram WebApp is not available.");
-    // }
-  }
-
   if (!activeSession?.contractAddress && !user?.defaultContractAddress) {
     return (
       <CreatePasskey
@@ -117,7 +75,7 @@ export const StrooperWallet: React.FC<StrooperWalletProps> = ({
     <Card className="min-h-screen w-full max-w-md border-0 bg-white p-4 shadow-lg">
       <CardHeader className="pb-2">
         <Button
-          onClick={scanQrCode}
+          onClick={openQRScanner}
           variant="ghost"
           size="icon"
           className="absolute right-2 top-2"
@@ -161,7 +119,7 @@ export const StrooperWallet: React.FC<StrooperWalletProps> = ({
         {showQR && (
           <div className="flex w-full items-center justify-center rounded-t-md bg-gray-100 p-4">
             <Image
-              src={generateQrCode("publicKey ?? ")}
+              src={generateQrCode(String(user!.defaultContractAddress))}
               width="250"
               height="250"
               alt="QR Code"

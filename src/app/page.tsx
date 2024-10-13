@@ -254,6 +254,34 @@ export default function Home() {
   //   }
   // };
 
+  const openQRScanner = () => {
+    if (window?.Telegram?.WebApp) {
+      window.Telegram.WebApp.showScanQrPopup({
+        text: "Please scan the QR code",
+      });
+
+      // Listen for the event when QR code data is received
+      window.Telegram.WebApp.onEvent(
+        "qrTextReceived",
+        (data: { data?: string }) => {
+          if (data?.data) {
+            console.log("QR code scanned:", data.data);
+            alert(`Scanned QR Code: ${data.data}`);
+          } else {
+            console.error("No data received from QR scan");
+          }
+        },
+      );
+
+      // Listen for when the QR scanner popup is closed
+      window.Telegram.WebApp.onEvent("scanQrPopupClosed", () => {
+        console.log("QR code scan popup closed");
+      });
+    } else {
+      console.error("Telegram WebApp is not available.");
+    }
+  };
+
   const openUrl = (url: string) => {
     return window.Telegram.WebApp.openLink(url);
   };
@@ -268,6 +296,7 @@ export default function Home() {
       {isAuthenticated ? (
         <StrooperWallet
           openUrl={openUrl}
+          openQRScanner={openQRScanner}
           onLogout={handleLogout}
           triggerHapticFeedback={triggerHapticFeedback}
         />
