@@ -48,13 +48,15 @@ export const useSigner = () => {
       });
 
       await transfer.signAuthEntries({
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         address: fundPubkey,
         signAuthEntry: (auth) => fundSigner.signAuthEntry(auth),
       });
 
       // Use tRPC mutation to send the transaction to the Stellar network
       const result = await sendTransaction({
-        xdr: built.toXDR(),
+        xdr: built!.toXDR(),
       });
       console.log("result:", result);
       return result;
@@ -65,9 +67,12 @@ export const useSigner = () => {
 
   const transfer = async (to: string) => {
     try {
+      if (!contractId) {
+        return alert("Please connect to a contract first");
+      }
       console.log(
         "Will transfer from contractId:",
-        shortStellarAddress(contractId),
+        shortStellarAddress(String(contractId)),
         "to:",
         shortStellarAddress(to),
       );
@@ -79,12 +84,14 @@ export const useSigner = () => {
 
       console.log("at xdr:", at.toXDR());
       console.log("before sign");
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       const signedXDR = await account.sign(at, { keyId });
       console.log("after sign");
       // Use tRPC mutation to send the transaction to the Stellar network
       console.log("before res");
       const result = await sendTransaction({
-        xdr: signedXDR.built.toXDR(),
+        xdr: signedXDR.built!.toXDR(),
       });
       console.log("after res");
       console.log("result:", result);

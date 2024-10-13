@@ -7,6 +7,7 @@ import {
   TRPCError,
 } from "@trpc/server/unstable-core-do-not-import";
 import { Horizon } from "@stellar/stellar-sdk";
+import { AxiosError } from "axios";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));

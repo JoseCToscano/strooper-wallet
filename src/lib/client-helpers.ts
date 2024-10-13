@@ -20,6 +20,7 @@ export const account = new PasskeyKit({
   factoryContractId: env.NEXT_PUBLIC_FACTORY_CONTRACT_ID,
 });
 
+// eslint-disable-next-line @typescript-eslint/no-misused-promises
 export const fundKeypair = new Promise<Keypair>(async (resolve) => {
   const now = new Date();
 
@@ -32,11 +33,7 @@ export const fundKeypair = new Promise<Keypair>(async (resolve) => {
   const keypair = Keypair.fromRawEd25519Seed(Buffer.from(hashBuffer));
   const publicKey = keypair.publicKey();
 
-  rpc
-    .getAccount(publicKey)
-    .catch(() => rpc.requestAirdrop(publicKey))
-    .then(console.log)
-    .catch(() => {});
+  await rpc.getAccount(publicKey).catch(() => rpc.requestAirdrop(publicKey));
 
   resolve(keypair);
 });
