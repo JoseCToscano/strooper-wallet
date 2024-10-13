@@ -63,7 +63,7 @@ export default function SignTransaction() {
             }}
           >
             <Fingerprint className="mr-2 h-6 w-6" />
-            Transfer
+            Transferr
           </Button>
           <Button
             className="w-full bg-zinc-800 py-6 text-lg text-white transition-colors duration-300 hover:bg-zinc-900"
