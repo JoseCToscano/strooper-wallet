@@ -71,6 +71,8 @@ export async function getKey(keyId: string): Promise<CryptoKey> {
       if (exportedKey) {
         // Import the JWK back into a CryptoKey
         const importedKey = await crypto.subtle.importKey(
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
           "jwk",
           exportedKey,
           { name: "AES-GCM", length: 256 },
