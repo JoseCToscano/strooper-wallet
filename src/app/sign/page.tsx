@@ -1,7 +1,7 @@
 "use client";
 import { Button } from "~/components/ui/button";
 import { AlertCircle, Fingerprint, Shield } from "lucide-react";
-import { shortStellarAddress } from "~/lib/utils";
+import { fromStroops, shortStellarAddress } from "~/lib/utils";
 import { useSigner } from "~/hooks/useSigner";
 import { useContractStore } from "~/hooks/stores/useContractStore";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
@@ -44,7 +44,9 @@ export default function SignTransaction() {
               </p>
               <p className="flex justify-between">
                 <span className="text-zinc-500">Amount:</span>
-                <span className="font-mono text-zinc-700">100 XLM</span>
+                <span className="font-mono text-zinc-700">
+                  {fromStroops(amount)} XLM
+                </span>
               </p>
             </div>
           </div>
@@ -61,10 +63,17 @@ export default function SignTransaction() {
             size="lg"
             onClick={async () => {
               let recipient = to;
+              let stroops = amount;
               if (!recipient) {
                 recipient = prompt("Enter recipient address");
               }
-              await transfer(recipient!);
+              if (!stroops) {
+                stroops = prompt("Enter amount in XLM");
+              }
+              await transfer(
+                recipient!,
+                BigInt(Number(stroops ?? 1) * 10_000_000),
+              );
             }}
           >
             <Fingerprint className="mr-2 h-6 w-6" />

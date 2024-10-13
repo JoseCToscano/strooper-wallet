@@ -376,6 +376,7 @@ function parsedTransactionFailedError(
   return message;
 }
 
-export function fromStroops(stroops: string): number {
+export function fromStroops(stroops: string | null): string {
+  if (!stroops) return "0";
   return (Number(stroops) / 10_000_000).toFixed(7);
 }

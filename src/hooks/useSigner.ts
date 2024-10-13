@@ -67,21 +67,16 @@ export const useSigner = () => {
     }
   };
 
-  const transfer = async (to: string) => {
+  const transfer = async (to: string, stroops: bigint) => {
     try {
       if (!contractId) {
         return alert("Please connect to a contract first");
       }
-      console.log(
-        "Will transfer from contractId:",
-        shortStellarAddress(String(contractId)),
-        "to:",
-        shortStellarAddress(to),
-      );
+
       const at = await native.transfer({
         from: contractId,
         to,
-        amount: BigInt(100 * 10_000_000),
+        amount: stroops,
       });
 
       console.log("at xdr:", at.toXDR());

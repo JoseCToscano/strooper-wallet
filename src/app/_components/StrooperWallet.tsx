@@ -7,10 +7,9 @@ import {
   Eye,
   EyeOff,
   Send,
-  Shield,
 } from "lucide-react";
 import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
+import { Card, CardContent, CardHeader } from "~/components/ui/card";
 import { ClientTRPCErrorHandler, fromStroops } from "~/lib/utils";
 import { useSessionStore } from "~/hooks/stores/useSessionStore";
 
@@ -21,7 +20,6 @@ import { CreatePasskey } from "~/app/_components/CreatePasskey";
 import SendMoneyForm from "~/app/_components/SendMoneyForm";
 import ReceiveMoney from "~/app/_components/ReceiveMoney";
 import { useContractStore } from "~/hooks/stores/useContractStore";
-import Image from "next/image";
 
 interface StrooperWalletProps {
   openUrl: (url: string) => void;
@@ -86,7 +84,7 @@ export const StrooperWallet: React.FC<StrooperWalletProps> = ({
   }
 
   return (
-    <div className="flex min-h-screen flex-row items-center justify-center bg-zinc-100 p-4">
+    <div className="flex min-h-screen items-center justify-center bg-zinc-100 p-4">
       <Card className="w-full max-w-md border-0 bg-white shadow-lg">
         <CardHeader className="flex flex-row items-center justify-between space-y-1">
           <Button
@@ -115,7 +113,10 @@ export const StrooperWallet: React.FC<StrooperWalletProps> = ({
             </h2>
             <div className="flex items-center justify-center space-x-2">
               <p className="text-4xl font-bold text-zinc-900">
-                {isBalanceHidden ? "••••••" : fromStroops(balance)} XLM
+                {isBalanceHidden
+                  ? "••••••"
+                  : fromStroops(String(balance ?? ""))}{" "}
+                XLM
               </p>
               <Button
                 variant="ghost"
@@ -171,13 +172,12 @@ export const StrooperWallet: React.FC<StrooperWalletProps> = ({
           <p className="mt-4 text-center text-xs text-zinc-500">
             Last updated: 2 minutes ago
           </p>
-          {showSendMoneyForm && <SendMoneyForm openQRScanner={openQRScanner} />}
+          {showSendMoneyForm && (
+            <SendMoneyForm openUrl={openUrl} openQRScanner={openQRScanner} />
+          )}
           {showQR && <ReceiveMoney />}
         </CardContent>
       </Card>
-      <span className="w-full text-center font-semibold text-muted-foreground">
-        Strooper Wallet
-      </span>
     </div>
   );
 };

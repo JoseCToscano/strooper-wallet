@@ -3,12 +3,23 @@ import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { Camera, Send } from "lucide-react";
+import { useState } from "react";
+import { env } from "~/env";
 
 export default function SendMoneyForm({
   openQRScanner,
+  openUrl,
 }: {
   openQRScanner: () => void;
+  openUrl: (url: string) => void;
 }) {
+  const [amount, setAmount] = useState("");
+  const [address, setAddress] = useState("");
+
+  const handleSendMoney = () => {
+    openUrl(`${env.NEXT_PUBLIC_APP_URL}/sign?to=${address}&amount=${amount}`);
+  };
+
   return (
     <div className="space-y-6">
       <div className="space-y-4">
@@ -21,6 +32,8 @@ export default function SendMoneyForm({
             type="number"
             placeholder="0.00"
             className="border-zinc-300 focus:border-zinc-500 focus:ring-zinc-500"
+            value={amount}
+            onChange={(e) => setAmount(String(e.target.value ?? ""))}
           />
         </div>
         <div className="space-y-2">
@@ -34,8 +47,10 @@ export default function SendMoneyForm({
             <Input
               id="address"
               type="text"
-              placeholder="0x..."
+              placeholder="Enter recipient address"
               className="border-zinc-300 focus:border-zinc-500 focus:ring-zinc-500"
+              value={address}
+              onChange={(e) => setAddress(String(e.target.value ?? ""))}
             />
             <Button
               type="button"
@@ -54,6 +69,7 @@ export default function SendMoneyForm({
       <Button
         className="w-full bg-zinc-800 py-6 text-lg text-white transition-colors duration-300 hover:bg-zinc-900"
         size="lg"
+        onClick={handleSendMoney}
       >
         <Send className="mr-2 h-5 w-5" />
         Send Money
