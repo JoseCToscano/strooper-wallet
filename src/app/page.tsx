@@ -44,7 +44,7 @@ export default function Home() {
   });
 
   useEffect(() => {
-    setContractId(null);
+    setContractId("");
   }, []);
 
   useEffect(() => {
