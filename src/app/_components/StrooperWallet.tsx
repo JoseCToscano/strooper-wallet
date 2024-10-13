@@ -10,7 +10,7 @@ import ReceiveMoney from "~/app/_components/ReceiveMoney";
 import { useContractStore } from "~/hooks/stores/useContractStore";
 
 interface StrooperWalletProps {
-  openUrl?: (url: string) => void;
+  openUrl: (url: string) => void;
   onLogout?: () => void;
   openQRScanner?: () => void;
   triggerHapticFeedback?: (
