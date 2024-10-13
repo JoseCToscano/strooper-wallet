@@ -1,0 +1,1 @@
+/Users/josetoscano/Documents/web3/strooper-wallet/soroban-contracts/target/wasm32-unknown-unknown/release/counter.wasm: /Users/josetoscano/Documents/web3/strooper-wallet/soroban-contracts/contracts/counter/src/lib.rs

@@ -79,7 +79,7 @@ export const useCreateStellarPasskey = (strooperUser?: User) => {
           contractId: cid,
           signerId: keyId_base64,
         });
-        await fundWallet(cid);
+        // await fundWallet(cid);
         console.log("funded wallet");
         return cid;
       }
