@@ -59,22 +59,6 @@ export default function SendMoneyForm({
         Send Money
       </Button>
 
-      <div className="space-y-3 rounded-lg bg-zinc-50 p-4">
-        <h2 className="text-sm font-semibold text-zinc-700">
-          Transaction Details
-        </h2>
-        <div className="space-y-2 text-sm">
-          <p className="flex justify-between">
-            <span className="text-zinc-500">Network Fee:</span>
-            <span className="font-mono text-zinc-700">0.0001 ETH</span>
-          </p>
-          <p className="flex justify-between">
-            <span className="text-zinc-500">Total:</span>
-            <span className="font-mono text-zinc-700">Amount + 0.0001 ETH</span>
-          </p>
-        </div>
-      </div>
-
       <p className="text-center text-xs text-zinc-500">
         By sending, you agree to the terms of service and privacy policy.
       </p>

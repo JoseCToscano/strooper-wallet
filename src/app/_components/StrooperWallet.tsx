@@ -47,7 +47,7 @@ export const StrooperWallet: React.FC<StrooperWalletProps> = ({
   triggerHapticFeedback,
   openQRScanner,
 }) => {
-  const [isBalanceHidden, setIsBalanceHidden] = useState(true);
+  const [isBalanceHidden, setIsBalanceHidden] = useState(false);
   const [showQR, setShowQR] = useState(false);
   const [showSendMoneyForm, setShowSendMoneyForm] = useState(false);
   const { user } = useSessionStore();
@@ -85,47 +85,28 @@ export const StrooperWallet: React.FC<StrooperWalletProps> = ({
     );
   }
 
-  if (showSendMoneyForm) {
-    return <SendMoneyForm openQRScanner={openQRScanner} />;
-  }
-
-  if (showQR) {
-    return <ReceiveMoney />;
-  }
-
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-100 p-4">
+    <div className="flex min-h-screen flex-row items-center justify-center bg-zinc-100 p-4">
       <Card className="w-full max-w-md border-0 bg-white shadow-lg">
-        <CardHeader className="flex items-center justify-center space-y-1">
-          <Button
-            onClick={openQRScanner}
-            variant="ghost"
-            size="icon"
-            className="absolute right-2 top-2"
-            aria-label="Scan QR Code"
-          >
-            <Camera className="h-4 w-4" />
-          </Button>
+        <CardHeader className="flex flex-row items-center justify-between space-y-1">
           <Button
             onClick={onLogout}
             variant="ghost"
             size="icon"
-            className="absolute left-2 top-2"
             aria-label="Scan QR Code"
+            className="font-semibold text-zinc-500 hover:text-zinc-700"
           >
-            logout
+            Logout
           </Button>
-          <Image
-            className="mx-auto my-0"
-            src={"/helmet-black.png"}
-            alt="Strooper Logo"
-            width={65}
-            height={65}
-          />
-          {/*<Shield className="mb-2 h-8 w-8 text-zinc-700" />*/}
-          <CardTitle className="text-center text-2xl font-semibold text-zinc-900">
-            Your Wallet
-          </CardTitle>
+          <Button
+            onClick={openQRScanner}
+            variant="ghost"
+            size="icon"
+            aria-label="Scan QR Code"
+            className="border-[1px] border-zinc-300 text-zinc-500 hover:text-zinc-700"
+          >
+            <Camera className="h-4 w-4" />
+          </Button>
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="rounded-lg bg-zinc-50 p-6 text-center">
@@ -163,7 +144,6 @@ export const StrooperWallet: React.FC<StrooperWalletProps> = ({
                 setShowSendMoneyForm(!showSendMoneyForm);
               }}
             >
-              <Send className="mr-2 h-5 w-5" />
               {!showSendMoneyForm ? (
                 <Send className="mr-2 h-5 w-5" />
               ) : (
@@ -182,7 +162,7 @@ export const StrooperWallet: React.FC<StrooperWalletProps> = ({
               {!showQR ? (
                 <Download className="mr-2 h-5 w-5" />
               ) : (
-                <ArrowDownIcon className="mr-2 h-4 w-4" />
+                <ArrowUpIcon className="mr-2 h-5 w-5" />
               )}
               {showQR ? "Hide QR" : "Receive"}
             </Button>
@@ -191,8 +171,13 @@ export const StrooperWallet: React.FC<StrooperWalletProps> = ({
           <p className="mt-4 text-center text-xs text-zinc-500">
             Last updated: 2 minutes ago
           </p>
+          {showSendMoneyForm && <SendMoneyForm openQRScanner={openQRScanner} />}
+          {showQR && <ReceiveMoney />}
         </CardContent>
       </Card>
+      <span className="w-full text-center font-semibold text-muted-foreground">
+        Strooper Wallet
+      </span>
     </div>
   );
 };
