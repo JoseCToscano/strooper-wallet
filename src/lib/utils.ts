@@ -186,11 +186,11 @@ export function copyToClipboard(text: string, silence = false) {
   navigator.clipboard
     .writeText(text)
     .then(() => {
-      // toast.success("Copied to clipboard");
+      toast.success("Copied to clipboard");
     })
     .catch(() => {
       if (!silence) {
-        // toast.error("Failed to copy to clipboard");
+        toast.error("Failed to copy to clipboard");
       }
     });
 }

@@ -8,15 +8,14 @@ import { ClientTRPCErrorHandler } from "~/lib/utils";
 import { useState } from "react";
 import { useSessionStore } from "~/hooks/stores/useSessionStore";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
-import {
-  AlertCircle,
-  CheckCircle,
-  Fingerprint,
-  Key,
-  Shield,
-} from "lucide-react";
+import { CheckCircle, Fingerprint, Key } from "lucide-react";
+import Image from "next/image";
+import { useCreateStellarPasskey } from "~/hooks/useCreateStellarPasskey";
+import { useSigner } from "~/hooks/useSigner";
+import { useRouter } from "next/navigation";
 
 interface CreatePasskeyProps {
+  comesFromBrowser?: boolean;
   openUrl: (url: string) => void;
   triggerHapticFeedback?: (
     style:
@@ -34,7 +33,11 @@ interface CreatePasskeyProps {
 export const CreatePasskey: React.FC<CreatePasskeyProps> = ({
   openUrl,
   triggerHapticFeedback,
+  comesFromBrowser,
 }) => {
+  const [creatingPasskey, setCreatingPasskey] = useState(false);
+  const [connectingPasskey, setConnectingPasskey] = useState(false);
+  const router = useRouter();
   const [loadingPasskeySession, setLoadingPasskeySession] = useState(false);
   const { user } = useSessionStore();
 
@@ -65,22 +68,50 @@ export const CreatePasskey: React.FC<CreatePasskeyProps> = ({
       });
   };
 
-  const createPasskey = () => {
-    redirectToBrowserForPasskey();
+  const { create } = useCreateStellarPasskey();
+  const { connect } = useSigner();
+
+  const createPasskey = async () => {
+    if (!comesFromBrowser) {
+      return redirectToBrowserForPasskey();
+    }
+    setCreatingPasskey(true);
+    await create().catch((err) => {
+      setCreatingPasskey(false);
+      throw err;
+    });
+    setCreatingPasskey(false);
+    void router.push("/sign");
+  };
+  const connectPasskey = async () => {
+    setConnectingPasskey(true);
+    await connect().catch((err) => {
+      setConnectingPasskey(false);
+      throw err;
+    });
+    setConnectingPasskey(false);
+    void router.push("/sign");
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-100 p-4">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-zinc-100 p-4">
       <Card className="w-full max-w-md border-0 bg-white shadow-lg">
         <CardHeader className="flex items-center justify-center space-y-1">
-          <Shield className="mb-2 h-8 w-8 text-zinc-700" />
+          <Image
+            className="mx-auto my-0"
+            src={"/helmet-black.png"}
+            alt="Strooper Logo"
+            width={65}
+            height={65}
+          />
+
           <CardTitle className="text-center text-2xl font-semibold text-zinc-900">
             Link Your Wallet
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
           <p className="text-center text-zinc-600">
-            Generate a new passkey to securely access your Web3 wallet.
+            Generate a new passkey to securely access your Stellar wallet.
           </p>
 
           <div className="space-y-4">
@@ -99,22 +130,65 @@ export const CreatePasskey: React.FC<CreatePasskeyProps> = ({
             </div>
           </div>
 
-          <Button
-            onClick={createPasskey}
-            className="w-full bg-zinc-800 py-6 text-lg text-white transition-colors duration-300 hover:bg-zinc-900"
-            size="lg"
-          >
-            {loadingPasskeySession ? (
-              <>
-                <LoadingDots />
-              </>
-            ) : (
-              <>
-                <Fingerprint className="mr-2 h-6 w-6" />
-                Setup Passkey
-              </>
-            )}
-          </Button>
+          {comesFromBrowser ? (
+            <>
+              <Button
+                disabled={
+                  loadingPasskeySession || creatingPasskey || connectingPasskey
+                }
+                onClick={createPasskey}
+                className="w-full bg-zinc-800 py-6 text-lg text-white transition-colors duration-300 hover:bg-zinc-900"
+                size="lg"
+              >
+                {loadingPasskeySession || creatingPasskey ? (
+                  <>
+                    <LoadingDots color="white" />
+                  </>
+                ) : (
+                  <>
+                    <Fingerprint className="mr-2 h-6 w-6" />
+                    Create New Passkey
+                  </>
+                )}
+              </Button>
+              <Button
+                disabled={
+                  loadingPasskeySession || creatingPasskey || connectingPasskey
+                }
+                onClick={connectPasskey}
+                className="w-full bg-zinc-800 py-6 text-lg text-white transition-colors duration-300 hover:bg-zinc-900"
+                size="lg"
+              >
+                {connectingPasskey ? (
+                  <>
+                    <LoadingDots color="white" />
+                  </>
+                ) : (
+                  <>
+                    <Fingerprint className="mr-2 h-6 w-6" />
+                    Connect Passkey
+                  </>
+                )}
+              </Button>
+            </>
+          ) : (
+            <Button
+              onClick={createPasskey}
+              className="w-full bg-zinc-800 py-6 text-lg text-white transition-colors duration-300 hover:bg-zinc-900"
+              size="lg"
+            >
+              {loadingPasskeySession ? (
+                <>
+                  <LoadingDots />
+                </>
+              ) : (
+                <>
+                  <Fingerprint className="mr-2 h-6 w-6" />
+                  Setup Passkey
+                </>
+              )}
+            </Button>
+          )}
 
           <div className="space-y-3 rounded-lg bg-zinc-50 p-4">
             <h2 className="text-sm font-semibold text-zinc-700">
@@ -138,6 +212,9 @@ export const CreatePasskey: React.FC<CreatePasskeyProps> = ({
           </p>
         </CardContent>
       </Card>
+      <span className="mt-4 text-xs text-zinc-500">
+        Strooper Wallet • ©2024
+      </span>
     </div>
   );
 };

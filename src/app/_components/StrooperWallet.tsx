@@ -10,9 +10,9 @@ import ReceiveMoney from "~/app/_components/ReceiveMoney";
 import { useContractStore } from "~/hooks/stores/useContractStore";
 
 interface StrooperWalletProps {
-  openUrl: (url: string) => void;
-  onLogout: () => void;
-  openQRScanner: () => void;
+  openUrl?: (url: string) => void;
+  onLogout?: () => void;
+  openQRScanner?: () => void;
   triggerHapticFeedback?: (
     style:
       | "light"
@@ -47,37 +47,41 @@ export const StrooperWallet: React.FC<StrooperWalletProps> = ({
     { enabled: !!contractId, refetchInterval: 5000 },
   );
 
-  if (!contractId) {
-    return (
-      <CreatePasskey
-        openUrl={openUrl}
-        triggerHapticFeedback={triggerHapticFeedback}
-      />
-    );
-  }
+  // if (!contractId) {
+  //   return (
+  //     <CreatePasskey
+  //       openUrl={openUrl}
+  //       triggerHapticFeedback={triggerHapticFeedback}
+  //     />
+  //   );
+  // }
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-zinc-100 p-4">
       <Card className="w-full max-w-md border-0 bg-white shadow-lg">
         <CardHeader className="flex flex-row items-center justify-between space-y-1">
-          <Button
-            onClick={onLogout}
-            variant="ghost"
-            size="icon"
-            aria-label="Scan QR Code"
-            className="font-semibold text-zinc-500 hover:text-zinc-700"
-          >
-            Logout
-          </Button>
-          <Button
-            onClick={openQRScanner}
-            variant="ghost"
-            size="icon"
-            aria-label="Scan QR Code"
-            className="border-[1px] border-zinc-300 text-zinc-500 hover:text-zinc-700"
-          >
-            <Camera className="h-4 w-4" />
-          </Button>
+          {onLogout && (
+            <Button
+              onClick={onLogout}
+              variant="ghost"
+              size="icon"
+              aria-label="Scan QR Code"
+              className="font-semibold text-zinc-500 hover:text-zinc-700"
+            >
+              Logout
+            </Button>
+          )}
+          {openQRScanner && (
+            <Button
+              onClick={openQRScanner}
+              variant="ghost"
+              size="icon"
+              aria-label="Scan QR Code"
+              className="border-[1px] border-zinc-300 text-zinc-500 hover:text-zinc-700"
+            >
+              <Camera className="h-4 w-4" />
+            </Button>
+          )}
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="rounded-lg bg-zinc-50 p-6 text-center">

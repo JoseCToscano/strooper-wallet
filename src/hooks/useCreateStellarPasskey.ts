@@ -5,7 +5,7 @@ import { useKeyStore } from "~/hooks/stores/useKeyStore";
 import { account, fundPubkey, fundSigner, native } from "~/lib/client-helpers";
 import { ClientTRPCErrorHandler } from "~/lib/utils";
 import toast from "react-hot-toast";
-import { User } from "@prisma/client";
+import { type User } from "@prisma/client";
 
 export const useCreateStellarPasskey = (strooperUser?: User) => {
   const [loading, setLoading] = useState(false);

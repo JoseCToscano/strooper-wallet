@@ -36,7 +36,7 @@ export const useSigner = () => {
       toast.success(`Successfully extracted contract`);
       return cid;
     } catch (err) {
-      alert((err as Error)?.message);
+      toast.error((err as Error)?.message);
       throw err;
     }
   };
@@ -94,7 +94,8 @@ export const useSigner = () => {
       console.log("result:", result);
       return result;
     } catch (err) {
-      alert((err as Error)?.message);
+      toast.error((err as Error)?.message);
+      throw err;
     }
   };
 

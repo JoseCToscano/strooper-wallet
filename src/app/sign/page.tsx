@@ -1,15 +1,18 @@
 "use client";
 import { Button } from "~/components/ui/button";
-import { AlertCircle, Camera, Fingerprint, Shield } from "lucide-react";
-import { fromStroops, shortStellarAddress } from "~/lib/utils";
+import { AlertCircle, Copy, Fingerprint } from "lucide-react";
+import { copyToClipboard, fromStroops, shortStellarAddress } from "~/lib/utils";
 import { useSigner } from "~/hooks/useSigner";
 import { useContractStore } from "~/hooks/stores/useContractStore";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { useSearchParams } from "next/navigation";
 import { Label } from "~/components/ui/label";
 import { Input } from "~/components/ui/input";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
+import Image from "next/image";
+import LoadingDots from "~/components/icons/loading-dots";
+import TransactionConfirmation from "~/app/sign/components/TransactionConfirmation";
 
 export default function SignTransaction() {
   const searchParams = useSearchParams();
@@ -18,12 +21,29 @@ export default function SignTransaction() {
 
   const [amount, setAmount] = useState(searchParams.get("amount"));
   const [address, setAddress] = useState(searchParams.get("to"));
+  const [isExecuting, setIsExecuting] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
+
+  useEffect(() => {
+    // Cleanups
+    return () => setShowSuccess(false);
+  }, []);
+
+  if (showSuccess) {
+    return <TransactionConfirmation amount={amount} recipient={address} />;
+  }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-100 p-4">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-zinc-100 p-4">
       <Card className="w-full max-w-md border-0 bg-white shadow-lg">
         <CardHeader className="flex items-center justify-center space-y-1">
-          <Shield className="mb-2 h-8 w-8 text-zinc-700" />
+          <Image
+            className="mx-auto my-0"
+            src={"/helmet-black.png"}
+            alt="Strooper Logo"
+            width={65}
+            height={65}
+          />
           <CardTitle className="text-center text-2xl font-semibold text-zinc-900">
             Sign Transaction
           </CardTitle>
@@ -59,7 +79,7 @@ export default function SignTransaction() {
                   type="text"
                   placeholder="Enter recipient address"
                   className="border-zinc-300 focus:border-zinc-500 focus:ring-zinc-500"
-                  value={String(address)}
+                  value={address ? String(address) : ""}
                   onChange={(e) => setAddress(String(e.target.value ?? ""))}
                 />
               </div>
@@ -72,15 +92,27 @@ export default function SignTransaction() {
             <div className="space-y-2 text-sm">
               <p className="flex justify-between">
                 <span className="text-zinc-500">From:</span>
-                <span className="font-mono text-zinc-700">
+                <span className="flex cursor-pointer font-mono text-zinc-700">
                   {shortStellarAddress(contractId ?? "")}
+                  {contractId && (
+                    <Copy
+                      className="ml-1 h-4 w-4"
+                      onClick={() => copyToClipboard(contractId)}
+                    />
+                  )}
                 </span>
               </p>
               {address && (
                 <p className="flex justify-between">
                   <span className="text-zinc-500">To:</span>
-                  <span className="font-mono text-zinc-700">
+                  <span className="flex cursor-pointer font-mono text-zinc-700">
                     {shortStellarAddress(address ?? "")}
+                    {contractId && (
+                      <Copy
+                        className="ml-1 h-4 w-4"
+                        onClick={() => copyToClipboard(address)}
+                      />
+                    )}
                   </span>
                 </p>
               )}
@@ -103,7 +135,7 @@ export default function SignTransaction() {
             </p>
           </div>
           <Button
-            disabled={!address || !amount}
+            disabled={!address || !amount || isExecuting}
             className="w-full bg-zinc-800 py-6 text-lg text-white transition-colors duration-300 hover:bg-zinc-900"
             size="lg"
             onClick={async () => {
@@ -111,11 +143,17 @@ export default function SignTransaction() {
                 toast.error("Please enter a recipient address and amount");
                 return;
               }
-              await transfer(address, BigInt(Number(amount ?? 1) * 10_000_000));
+              setIsExecuting(true);
+              transfer(address, BigInt(Number(amount ?? 1) * 10_000_000))
+                .then(() => {
+                  setShowSuccess(true);
+                  setIsExecuting(false);
+                })
+                .catch(() => setIsExecuting(false));
             }}
           >
             <Fingerprint className="mr-2 h-6 w-6" />
-            Transfer
+            {isExecuting ? <LoadingDots color="white" /> : "Transfer"}{" "}
           </Button>
           <Button
             className="w-full bg-zinc-800 py-6 text-lg text-white transition-colors duration-300 hover:bg-zinc-900"
@@ -127,6 +165,9 @@ export default function SignTransaction() {
           </Button>
         </CardContent>
       </Card>
+      <span className="mt-4 text-xs text-zinc-500">
+        Strooper Wallet • ©2024
+      </span>
     </div>
   );
 }

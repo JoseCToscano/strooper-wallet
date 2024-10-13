@@ -10,7 +10,7 @@ export default function SendMoneyForm({
   openQRScanner,
   openUrl,
 }: {
-  openQRScanner: () => void;
+  openQRScanner?: () => void;
   openUrl: (url: string) => void;
 }) {
   const [amount, setAmount] = useState("");
@@ -52,16 +52,18 @@ export default function SendMoneyForm({
               value={address}
               onChange={(e) => setAddress(String(e.target.value ?? ""))}
             />
-            <Button
-              type="button"
-              variant="outline"
-              size="icon"
-              className="border-2 border-zinc-300 hover:bg-zinc-100"
-              onClick={openQRScanner}
-            >
-              <Camera className="h-4 w-4" />
-              <span className="sr-only">Scan QR Code</span>
-            </Button>
+            {openQRScanner && (
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                className="border-2 border-zinc-300 hover:bg-zinc-100"
+                onClick={openQRScanner}
+              >
+                <Camera className="h-4 w-4" />
+                <span className="sr-only">Scan QR Code</span>
+              </Button>
+            )}
           </div>
         </div>
       </div>
