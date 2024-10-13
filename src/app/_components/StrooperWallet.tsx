@@ -21,6 +21,7 @@ import { CreatePasskey } from "~/app/_components/CreatePasskey";
 import SendMoneyForm from "~/app/_components/SendMoneyForm";
 import ReceiveMoney from "~/app/_components/ReceiveMoney";
 import { useContractStore } from "~/hooks/stores/useContractStore";
+import Image from "next/image";
 
 interface StrooperWalletProps {
   openUrl: (url: string) => void;
@@ -58,7 +59,7 @@ export const StrooperWallet: React.FC<StrooperWalletProps> = ({
 
   const { data: balance } = api.stellar.getBalance.useQuery(
     { contractAddress: String(contractId) },
-    { enabled: !!contractId, refetchInterval: 1000 },
+    { enabled: !!contractId, refetchInterval: 5000 },
   );
 
   const signSession = api.telegram.session.useMutation({
@@ -84,6 +85,14 @@ export const StrooperWallet: React.FC<StrooperWalletProps> = ({
     );
   }
 
+  if (showSendMoneyForm) {
+    return <SendMoneyForm openQRScanner={openQRScanner} />;
+  }
+
+  if (showQR) {
+    return <ReceiveMoney />;
+  }
+
   return (
     <div className="flex min-h-screen items-center justify-center bg-zinc-100 p-4">
       <Card className="w-full max-w-md border-0 bg-white shadow-lg">
@@ -106,7 +115,14 @@ export const StrooperWallet: React.FC<StrooperWalletProps> = ({
           >
             logout
           </Button>
-          <Shield className="mb-2 h-8 w-8 text-zinc-700" />
+          <Image
+            className="mx-auto my-0"
+            src={"/helmet-black.png"}
+            alt="Strooper Logo"
+            width={65}
+            height={65}
+          />
+          {/*<Shield className="mb-2 h-8 w-8 text-zinc-700" />*/}
           <CardTitle className="text-center text-2xl font-semibold text-zinc-900">
             Your Wallet
           </CardTitle>
@@ -175,9 +191,6 @@ export const StrooperWallet: React.FC<StrooperWalletProps> = ({
           <p className="mt-4 text-center text-xs text-zinc-500">
             Last updated: 2 minutes ago
           </p>
-
-          {showQR && <ReceiveMoney />}
-          {showSendMoneyForm && <SendMoneyForm openQRScanner={openQRScanner} />}
         </CardContent>
       </Card>
     </div>
