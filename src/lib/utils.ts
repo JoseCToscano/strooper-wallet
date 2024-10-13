@@ -67,7 +67,7 @@ export async function getKey(keyId: string): Promise<CryptoKey> {
 
   return new Promise((resolve, reject) => {
     request.onsuccess = async () => {
-      const exportedKey = request.result;
+      const exportedKey = request.result as string;
       if (exportedKey) {
         // Import the JWK back into a CryptoKey
         const importedKey = await crypto.subtle.importKey(
@@ -113,7 +113,7 @@ export async function getCredentialId(keyId: string): Promise<Uint8Array> {
 
   return new Promise((resolve, reject) => {
     request.onsuccess = () => {
-      const credentialIdBase64 = request.result;
+      const credentialIdBase64 = request.result as string;
       console.log("request", request);
       if (credentialIdBase64) {
         // Convert the base64 string back into a Uint8Array
