@@ -1,5 +1,5 @@
 import { api } from "~/trpc/react";
-import { RefetchOptions } from "@tanstack/react-query";
+import { type RefetchOptions } from "@tanstack/react-query";
 
 export const useGetContractId = () => {
   const getContractIdQuery = api.stellar.getContractId.useQuery("", {

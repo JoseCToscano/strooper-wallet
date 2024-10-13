@@ -13,6 +13,7 @@ import toast from "react-hot-toast";
 import Image from "next/image";
 import LoadingDots from "~/components/icons/loading-dots";
 import TransactionConfirmation from "~/app/sign/components/TransactionConfirmation";
+import { useGetSigners } from "~/hooks/useGetSigners";
 
 export default function SignTransaction() {
   const searchParams = useSearchParams();
@@ -24,10 +25,21 @@ export default function SignTransaction() {
   const [isExecuting, setIsExecuting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
 
+  const { getSigners } = useGetSigners();
+
   useEffect(() => {
     // Cleanups
     return () => setShowSuccess(false);
   }, []);
+
+  useEffect(() => {
+    console.log("contract id is: ", contractId);
+    if (contractId) {
+      console.log("getting signers for contract id: ", contractId);
+      const signers = getSigners(contractId);
+      console.log("signers are: ", signers);
+    }
+  }, [contractId]);
 
   if (showSuccess && amount && address) {
     return <TransactionConfirmation amount={amount} recipient={address} />;

@@ -31,14 +31,22 @@ export const stellarRouter = createTRPCRouter({
       });
     }),
   getContractId: publicProcedure
-    .input(z.string())
-    .query(async ({ input, ctx }) => {
-      const signer = await ctx.db.signers.findFirstOrThrow({
-        where: {
-          signerId: input,
-        },
-      });
-      return signer.contractId;
+    .input(z.string()) // Signer ID
+    .query(async ({ input }) => {
+      const contractId = await account.getContractId({ keyId: input });
+      return contractId;
+      // const signer = await ctx.db.signers.findFirstOrThrow({
+      //   where: {
+      //     signerId: input,
+      //   },
+      // });
+      // return signer.contractId;
+    }),
+  getSigners: publicProcedure
+    .input(z.string()) // Contract ID
+    .query(async ({ input }) => {
+      const signers = await account.getSigners(input);
+      return signers;
     }),
   send: publicProcedure
     .input(z.object({ xdr: z.string() }))
