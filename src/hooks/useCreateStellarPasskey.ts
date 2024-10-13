@@ -33,9 +33,9 @@ export const useCreateStellarPasskey = (strooperUser?: User) => {
         amount: BigInt(100 * 10_000_000),
       });
 
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
       await transfer.signAuthEntries({
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         address: fundPubkey,
         signAuthEntry: (auth) => fundSigner.signAuthEntry(auth),
       });
