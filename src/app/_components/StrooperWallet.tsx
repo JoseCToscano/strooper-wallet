@@ -113,9 +113,7 @@ export const StrooperWallet: React.FC<StrooperWalletProps> = ({
             </h2>
             <div className="flex items-center justify-center space-x-2">
               <p className="text-4xl font-bold text-zinc-900">
-                {isBalanceHidden
-                  ? "••••••"
-                  : fromStroops(String(balance ?? ""))}{" "}
+                {isBalanceHidden ? "•••••" : fromStroops(String(balance ?? ""))}{" "}
                 XLM
               </p>
               <Button
