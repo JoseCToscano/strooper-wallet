@@ -57,7 +57,7 @@ export const StrooperWallet: React.FC<StrooperWalletProps> = ({
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-100 p-4">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-zinc-100 p-4">
       <Card className="w-full max-w-md border-0 bg-white shadow-lg">
         <CardHeader className="flex flex-row items-center justify-between space-y-1">
           {onLogout && (
@@ -154,6 +154,9 @@ export const StrooperWallet: React.FC<StrooperWalletProps> = ({
           {showQR && <ReceiveMoney />}
         </CardContent>
       </Card>
+      <span className="mt-4 text-xs text-zinc-500">
+        Strooper Wallet • ©2024
+      </span>
     </div>
   );
 };
