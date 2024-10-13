@@ -122,7 +122,7 @@ export const CreatePasskey: React.FC<CreatePasskeyProps> = ({
             </h2>
             <ol className="list-inside list-decimal space-y-2 text-sm text-zinc-600">
               <li>
-                Your will be redirected to a secure browser to create a passkey
+                You will be redirected to a secure browser to create a passkey
               </li>
               <li>
                 Confirm the passkey using your device&quote;s authentication
