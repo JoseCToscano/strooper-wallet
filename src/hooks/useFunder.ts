@@ -16,7 +16,7 @@ export const useFunder = () => {
       );
       const responseJSON = await response.json();
       setIsLoading(false);
-      return responseJSON;
+      return { success: true, result: responseJSON as object };
     } catch (e) {
       setIsLoading(false);
       setError(

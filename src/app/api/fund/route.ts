@@ -12,7 +12,7 @@ import {
   hasEnoughBalance,
   numberToi128,
 } from "~/lib/utils";
-import type { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 
 const server = new Horizon.Server("https://horizon-testnet.stellar.org");
 const DEFAULT_AMOUNT = 50000000;
