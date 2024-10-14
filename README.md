@@ -44,19 +44,20 @@ This project is built using:
 To run this project locally:
 
 1. Clone the repository:
-   ```bash
-https://github.com/yourusername/strooper-bot.gi
-Install dependencies:
 
-bash
+2. Install dependencies:
+
+```
 npm install
+```
 Create a .env.local file in the root directory and add your environment variables, including your Telegram bot token:
 
-env
+
 TELEGRAM_BOT_TOKEN=your-telegram-bot-token
 Run the development server:
 
-bash
-Copiar código
+
+```
 npm run dev
+```
 The app will be available at http://localhost:3000.
