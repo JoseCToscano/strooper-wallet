@@ -95,6 +95,7 @@ export default function SignTransaction() {
             )}
             {contractId && (
               <Button
+                disabled={isFunding}
                 size="sm"
                 variant="outline"
                 className="absolute right-2 top-2 bg-zinc-800 px-2 py-1 text-xs text-white hover:bg-zinc-200"

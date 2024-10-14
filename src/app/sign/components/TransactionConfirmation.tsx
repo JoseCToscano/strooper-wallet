@@ -3,13 +3,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { CheckCircle, ArrowLeft, ExternalLink } from "lucide-react";
 import { shortStellarAddress } from "~/lib/utils";
 import Image from "next/image";
+import { FC } from "react";
 
 interface TransactionConfirmationProps {
   amount: string;
   recipient: string;
 }
 
-const TransactionConfirmation: React.FC<TransactionConfirmationProps> = ({
+const TransactionConfirmation: FC<TransactionConfirmationProps> = ({
   amount,
   recipient,
 }) => {
@@ -56,12 +57,7 @@ const TransactionConfirmation: React.FC<TransactionConfirmationProps> = ({
 
           <div className="flex flex-col space-y-4">
             <Button
-              onClick={() =>
-                window.open(
-                  `https://stellar.expert/explorer/public/tx/${recipient}`,
-                  "_blank",
-                )
-              }
+              onClick={() => window.location.reload()}
               className="bg-zinc-800 py-2 text-sm text-white transition-colors duration-300 hover:bg-zinc-900"
             >
               <ExternalLink className="mr-2 h-4 w-4" />
