@@ -380,3 +380,7 @@ export function fromStroops(stroops: string | null): string {
   if (!stroops) return "0";
   return (Number(stroops) / 10_000_000).toFixed(7);
 }
+
+export function toStroops(xlm: string): string {
+  return (Number(xlm) * 10_000_000).toFixed(0);
+}

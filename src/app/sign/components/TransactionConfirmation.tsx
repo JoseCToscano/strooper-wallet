@@ -1,6 +1,6 @@
 import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
-import { Shield, CheckCircle, ArrowLeft, ExternalLink } from "lucide-react";
+import { CheckCircle, ArrowLeft, ExternalLink } from "lucide-react";
 import { shortStellarAddress } from "~/lib/utils";
 import Image from "next/image";
 

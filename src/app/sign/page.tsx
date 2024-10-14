@@ -1,7 +1,12 @@
 "use client";
 import { Button } from "~/components/ui/button";
 import { AlertCircle, Copy, Fingerprint } from "lucide-react";
-import { copyToClipboard, fromStroops, shortStellarAddress } from "~/lib/utils";
+import {
+  copyToClipboard,
+  fromStroops,
+  toStroops,
+  shortStellarAddress,
+} from "~/lib/utils";
 import { useSigner } from "~/hooks/useSigner";
 import { useContractStore } from "~/hooks/stores/useContractStore";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
@@ -14,6 +19,23 @@ import Image from "next/image";
 import LoadingDots from "~/components/icons/loading-dots";
 import TransactionConfirmation from "~/app/sign/components/TransactionConfirmation";
 import { useGetSigners } from "~/hooks/useGetSigners";
+import { api } from "~/trpc/react";
+
+function hasEnoughBalance(
+  stroopsAvailable?: number | string,
+  stroopsToTransfer?: number | string,
+) {
+  const balance =
+    typeof stroopsAvailable === "string"
+      ? parseInt(stroopsAvailable)
+      : stroopsAvailable;
+  const amount =
+    typeof stroopsToTransfer === "string"
+      ? parseInt(stroopsToTransfer)
+      : stroopsToTransfer;
+
+  return balance >= amount;
+}
 
 export default function SignTransaction() {
   const searchParams = useSearchParams();
@@ -26,6 +48,19 @@ export default function SignTransaction() {
   const [showSuccess, setShowSuccess] = useState(false);
 
   const { getSigners } = useGetSigners();
+
+  const { data: balance, isLoading } = api.stellar.getBalance.useQuery(
+    { contractAddress: contractId },
+    {
+      enabled: !!contractId,
+      refetchInterval: 1000,
+      refetchIntervalInBackground: true,
+      refetchInterval: 5000,
+      refetchOnMount: true,
+      refetchOnReconnect: true,
+      refetchOnWindowFocus: true,
+    },
+  );
 
   useEffect(() => {
     // Cleanups
@@ -61,6 +96,16 @@ export default function SignTransaction() {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
+          <div className="-my-2 rounded-md bg-zinc-100 p-3 text-center">
+            <p className="text-sm text-zinc-500">Available Balance</p>
+            {isLoading ? (
+              <LoadingDots />
+            ) : (
+              <p className="text-lg font-semibold">
+                {balance ? fromStroops(balance) : "0.00"} XLM
+              </p>
+            )}
+          </div>
           <div className="space-y-4">
             <div className="space-y-2">
               <Label
@@ -77,6 +122,14 @@ export default function SignTransaction() {
                 value={String(amount)}
                 onChange={(e) => setAmount(String(e.target.value ?? ""))}
               />
+              {!hasEnoughBalance(balance, toStroops(amount)) && balance && (
+                <span className="">
+                  <p className="flex items-center pl-1 text-xs text-red-600">
+                    <AlertCircle className="mr-0.5 inline-block h-3 w-3" />
+                    Transfer amount exceeds balance
+                  </p>
+                </span>
+              )}
             </div>
             <div className="space-y-2">
               <Label
@@ -131,9 +184,7 @@ export default function SignTransaction() {
               {amount && (
                 <p className="flex justify-between">
                   <span className="text-zinc-500">Amount:</span>
-                  <span className="font-mono text-zinc-700">
-                    {fromStroops(amount)} XLM
-                  </span>
+                  <span className="font-mono text-zinc-700">{amount} XLM</span>
                 </p>
               )}
             </div>
@@ -146,6 +197,7 @@ export default function SignTransaction() {
               transaction.
             </p>
           </div>
+
           <Button
             disabled={!address || !amount || isExecuting}
             className="w-full bg-zinc-800 py-6 text-lg text-white transition-colors duration-300 hover:bg-zinc-900"
