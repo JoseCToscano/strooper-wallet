@@ -384,3 +384,19 @@ export function fromStroops(stroops: string | null): string {
 export function toStroops(xlm: string): string {
   return (Number(xlm) * 10_000_000).toFixed(0);
 }
+
+export function hasEnoughBalance(
+  stroopsAvailable: number | string,
+  stroopsToTransfer: number | string,
+) {
+  const balance =
+    typeof stroopsAvailable === "string"
+      ? parseInt(stroopsAvailable)
+      : stroopsAvailable;
+  const amount =
+    typeof stroopsToTransfer === "string"
+      ? parseInt(stroopsToTransfer)
+      : stroopsToTransfer;
+
+  return balance >= amount;
+}

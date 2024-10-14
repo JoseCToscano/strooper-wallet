@@ -1,11 +1,12 @@
 "use client";
 import { Button } from "~/components/ui/button";
-import { AlertCircle, Copy, Fingerprint } from "lucide-react";
+import { AlertCircle, Copy, Fingerprint, PlusCircle } from "lucide-react";
 import {
   copyToClipboard,
   fromStroops,
   toStroops,
   shortStellarAddress,
+  hasEnoughBalance,
 } from "~/lib/utils";
 import { useSigner } from "~/hooks/useSigner";
 import { useContractStore } from "~/hooks/stores/useContractStore";
@@ -20,22 +21,7 @@ import LoadingDots from "~/components/icons/loading-dots";
 import TransactionConfirmation from "~/app/sign/components/TransactionConfirmation";
 import { useGetSigners } from "~/hooks/useGetSigners";
 import { api } from "~/trpc/react";
-
-function hasEnoughBalance(
-  stroopsAvailable: number | string,
-  stroopsToTransfer: number | string,
-) {
-  const balance =
-    typeof stroopsAvailable === "string"
-      ? parseInt(stroopsAvailable)
-      : stroopsAvailable;
-  const amount =
-    typeof stroopsToTransfer === "string"
-      ? parseInt(stroopsToTransfer)
-      : stroopsToTransfer;
-
-  return balance >= amount;
-}
+import { useFunder } from "~/hooks/useFunder";
 
 export default function SignTransaction() {
   const searchParams = useSearchParams();
@@ -48,14 +34,14 @@ export default function SignTransaction() {
   const [showSuccess, setShowSuccess] = useState(false);
 
   const { getSigners } = useGetSigners();
+  const { fund } = useFunder();
 
   const { data: balance, isLoading } = api.stellar.getBalance.useQuery(
-    { contractAddress: contractId },
+    { contractAddress: String(contractId) },
     {
       enabled: !!contractId,
-      refetchInterval: 1000,
       refetchIntervalInBackground: true,
-      refetchInterval: 5000,
+      refetchInterval: 3000,
       refetchOnMount: true,
       refetchOnReconnect: true,
       refetchOnWindowFocus: true,
@@ -96,7 +82,7 @@ export default function SignTransaction() {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
-          <div className="-my-2 rounded-md bg-zinc-100 p-3 text-center">
+          <div className="relative -my-2 rounded-md bg-zinc-100 p-3 text-center">
             <p className="text-sm text-zinc-500">Available Balance</p>
             {isLoading ? (
               <LoadingDots />
@@ -104,6 +90,17 @@ export default function SignTransaction() {
               <p className="text-lg font-semibold">
                 {balance ? fromStroops(balance) : "0.00"} XLM
               </p>
+            )}
+            {contractId && (
+              <Button
+                size="sm"
+                variant="outline"
+                className="absolute right-2 top-2 bg-white px-2 py-1 text-xs hover:bg-zinc-200"
+                onClick={() => fund(contractId)}
+              >
+                <PlusCircle className="mr-1 h-3 w-3" />
+                Fund account
+              </Button>
             )}
           </div>
           <div className="space-y-4">

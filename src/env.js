@@ -16,6 +16,8 @@ export const env = createEnv({
     LAUNCHETUBE_JWT: z.string(),
     MERCURYT_URL: z.string().url(),
     MERCURY_JWT: z.string(),
+    FUNDER_SECRET_KEY: z.string(),
+    FUNDER_PUBLIC_KEY: z.string(),
   },
 
   /**
@@ -52,6 +54,8 @@ export const env = createEnv({
     DATABASE_URL: process.env.DATABASE_URL,
     NODE_ENV: process.env.NODE_ENV,
     TELEGRAM_BOT_URL: process.env.TELEGRAM_BOT_URL,
+    FUNDER_SECRET_KEY: process.env.FUNDER_SECRET_KEY,
+    FUNDER_PUBLIC_KEY: process.env.FUNDER_PUBLIC_KEY,
     // NEXT_PUBLIC_CLIENTVAR: process.env.NEXT_PUBLIC_CLIENTVAR,
   },
   /**
