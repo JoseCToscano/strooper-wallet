@@ -50,16 +50,14 @@ To run this project locally:
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/strooper-bot.git
+   git clone [https://github.com/yourusername/strooper-bot.git](https://github.com/JoseCToscano/strooper-wallet.git)
 Install dependencies:
 
 bash
-Copiar código
 npm install
 Create a .env.local file in the root directory and add your environment variables, including your Telegram bot token:
 
 env
-Copiar código
 TELEGRAM_BOT_TOKEN=your-telegram-bot-token
 Run the development server:
 
