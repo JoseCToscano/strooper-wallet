@@ -119,7 +119,7 @@ export default function SignTransaction() {
                 value={String(amount)}
                 onChange={(e) => setAmount(String(e.target.value ?? ""))}
               />
-              {!hasEnoughBalance(balance, toStroops(amount)) && balance && (
+              {balance && !hasEnoughBalance(balance, toStroops(amount)) && (
                 <span className="">
                   <p className="flex items-center pl-1 text-xs text-red-600">
                     <AlertCircle className="mr-0.5 inline-block h-3 w-3" />
