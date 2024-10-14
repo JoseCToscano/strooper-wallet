@@ -33,8 +33,10 @@ export default function SignTransaction() {
   const [isExecuting, setIsExecuting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
 
+  const ctx = api.useContext();
+
   const { getSigners } = useGetSigners();
-  const { fund } = useFunder();
+  const { fund, isLoading: isFunding, error } = useFunder();
 
   const { data: balance, isLoading } = api.stellar.getBalance.useQuery(
     { contractAddress: String(contractId) },
@@ -93,13 +95,24 @@ export default function SignTransaction() {
             )}
             {contractId && (
               <Button
-                size="sm"
+                size="xs"
                 variant="outline"
-                className="absolute right-2 top-2 bg-white px-2 py-1 text-xs hover:bg-zinc-200"
-                onClick={() => fund(contractId)}
+                className="absolute right-2 top-2 bg-zinc-800 px-2 py-1 text-xs text-white hover:bg-zinc-200"
+                onClick={async () => {
+                  fund(contractId)
+                    .then(() => {
+                      toast.success("You just received 500 XLM!");
+                      void ctx.stellar.getBalance.invalidate({
+                        contractAddress: String(contractId),
+                      });
+                    })
+                    .catch(() => {
+                      toast.error("Unable to fund contract");
+                    });
+                }}
               >
                 <PlusCircle className="mr-1 h-3 w-3" />
-                Fund account
+                {isFunding ? "Funding..." : "Fund"}
               </Button>
             )}
           </div>
@@ -211,6 +224,9 @@ export default function SignTransaction() {
                 .then(() => {
                   setShowSuccess(true);
                   setIsExecuting(false);
+                  void ctx.stellar.getBalance.invalidate({
+                    contractAddress: String(contractId),
+                  });
                 })
                 .catch(() => setIsExecuting(false));
             }}

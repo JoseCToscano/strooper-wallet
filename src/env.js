@@ -18,6 +18,8 @@ export const env = createEnv({
     MERCURY_JWT: z.string(),
     FUNDER_SECRET_KEY: z.string(),
     FUNDER_PUBLIC_KEY: z.string(),
+    NATIVE_CONTRACT_ID: z.string(),
+    RPC_URL: z.string(),
   },
 
   /**
@@ -56,6 +58,8 @@ export const env = createEnv({
     TELEGRAM_BOT_URL: process.env.TELEGRAM_BOT_URL,
     FUNDER_SECRET_KEY: process.env.FUNDER_SECRET_KEY,
     FUNDER_PUBLIC_KEY: process.env.FUNDER_PUBLIC_KEY,
+    NATIVE_CONTRACT_ID: process.env.NATIVE_CONTRACT_ID,
+    RPC_URL: process.env.RPC_URL,
     // NEXT_PUBLIC_CLIENTVAR: process.env.NEXT_PUBLIC_CLIENTVAR,
   },
   /**

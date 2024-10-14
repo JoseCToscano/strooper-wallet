@@ -6,8 +6,19 @@ import {
   type AnyClientTypes,
   TRPCError,
 } from "@trpc/server/unstable-core-do-not-import";
-import { Horizon } from "@stellar/stellar-sdk";
+import {
+  Horizon,
+  nativeToScVal,
+  Address,
+  SorobanRpc,
+  Contract,
+  TransactionBuilder,
+  Networks,
+  xdr,
+  BASE_FEE,
+} from "@stellar/stellar-sdk";
 import { AxiosError } from "axios";
+import { env } from "~/env";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -389,6 +400,8 @@ export function hasEnoughBalance(
   stroopsAvailable: number | string,
   stroopsToTransfer: number | string,
 ) {
+  console.log("stroopsAvailable", stroopsAvailable);
+  console.log("stroopsToTransfer", stroopsToTransfer);
   const balance =
     typeof stroopsAvailable === "string"
       ? parseInt(stroopsAvailable)
@@ -399,4 +412,85 @@ export function hasEnoughBalance(
       : stroopsToTransfer;
 
   return balance >= amount;
+}
+
+export const stringToSymbol = (val: string) => {
+  return nativeToScVal(val, { type: "symbol" });
+};
+
+export const numberToU64 = (val: number) => {
+  const num = parseInt((val * 100).toFixed(0));
+  return nativeToScVal(num, { type: "u64" });
+};
+
+export const numberToi128 = (val: number) => {
+  const num = parseInt((val * 100).toFixed(0));
+  return nativeToScVal(num, { type: "i128" });
+};
+
+// Convert Stellar address to ScVal
+export function addressToScVal(addressStr: string) {
+  Address.fromString(addressStr);
+  // Convert to ScVal as an Object with Bytes
+  return nativeToScVal(Address.fromString(addressStr));
+}
+
+export async function getContractXDR(
+  address: string,
+  contractMethod: string,
+  caller: string,
+  values: xdr.ScVal[],
+) {
+  console.log("Here is the caller", caller);
+  const provider = new SorobanRpc.Server(env.RPC_URL, { allowHttp: true });
+  const sourceAccount = await provider.getAccount(caller);
+  console.log("Here is the source account", sourceAccount);
+  const contract = new Contract(address);
+  console.log("Here is the contract", contract);
+  const transaction = new TransactionBuilder(sourceAccount, {
+    fee: BASE_FEE,
+    networkPassphrase: Networks.TESTNET,
+  })
+    .addOperation(contract.call(contractMethod, ...values))
+    .setTimeout(30)
+    .build();
+
+  console.log("total signatures:", transaction.signatures.length);
+  try {
+    const prepareTx = await provider.prepareTransaction(transaction);
+
+    return prepareTx.toXDR();
+  } catch (e) {
+    console.log("Error", e);
+    throw new Error("Unable to send transaction");
+  }
+}
+
+export async function callWithSignedXDR(xdr: string) {
+  const provider = new SorobanRpc.Server(env.RPC_URL, { allowHttp: true });
+  console.log(xdr);
+  const transaction = TransactionBuilder.fromXDR(xdr, Networks.TESTNET);
+  console.log("total signatures:", transaction.signatures.length);
+  const sendTx = await provider.sendTransaction(transaction);
+  console.log("sent TX");
+  if (sendTx.errorResult) {
+    console.log("Error", sendTx.errorResult);
+    throw new Error("Unable to send transaction");
+  }
+  if (sendTx.status === "PENDING") {
+    let txResponse = await provider.getTransaction(sendTx.hash);
+    while (
+      txResponse.status === SorobanRpc.Api.GetTransactionStatus.NOT_FOUND
+    ) {
+      txResponse = await provider.getTransaction(sendTx.hash);
+      await new Promise((resolve) => setTimeout(resolve, 100));
+    }
+    if (txResponse.status === SorobanRpc.Api.GetTransactionStatus.SUCCESS) {
+      return txResponse.returnValue;
+    } else {
+      console.log("Error", txResponse);
+
+      throw new Error("Unable to send transaction");
+    }
+  }
 }

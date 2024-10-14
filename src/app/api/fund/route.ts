@@ -2,17 +2,21 @@ import {
   Horizon,
   TransactionBuilder,
   Networks,
-  Operation,
   Keypair,
-  BASE_FEE,
-  Asset,
 } from "@stellar/stellar-sdk";
 import { env } from "~/env";
-import { hasEnoughBalance, toStroops } from "~/lib/utils";
-import { NextRequest, NextResponse } from "next/server";
+import {
+  addressToScVal,
+  getContractXDR,
+  handleHorizonServerError,
+  hasEnoughBalance,
+  numberToi128,
+} from "~/lib/utils";
+import type { NextRequest, NextResponse } from "next/server";
 
 const server = new Horizon.Server("https://horizon-testnet.stellar.org");
-const DEFAULT_AMOUNT = toStroops("500");
+const DEFAULT_AMOUNT = 50000000;
+
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
@@ -33,38 +37,43 @@ export async function GET(req: NextRequest) {
     const accountBalance =
       funderAccount.balances.find((b) => b.asset_type === "native")?.balance ??
       "0";
+    console.log("Account balance:", accountBalance);
     if (!hasEnoughBalance(accountBalance, DEFAULT_AMOUNT)) {
+      console.log("Re-funding account...");
+      console.log(funderKeypair.publicKey());
       await fetch(
         `https://friendbot.stellar.org?addr=${funderKeypair.publicKey()}`,
       );
     }
 
-    // Build the transaction to fund the SAC
-    const transaction = new TransactionBuilder(funderAccount, {
-      fee: BASE_FEE,
-      networkPassphrase: Networks.TESTNET,
-    })
-      .addOperation(
-        Operation.payment({
-          destination: addr, // This is the SAC address
-          asset: Asset.native(), // Native XLM
-          amount: DEFAULT_AMOUNT, // Amount to send (adjust as necessary)
-        }),
-      )
-      .setTimeout(180)
-      .build();
+    const paramsForTransfer = [
+      addressToScVal(funderKeypair.publicKey()), // From
+      addressToScVal(addr), // To
+      numberToi128(DEFAULT_AMOUNT), // Amount
+    ];
+
+    const xdr = await getContractXDR(
+      env.NATIVE_CONTRACT_ID,
+      "transfer",
+      funderKeypair.publicKey(),
+      paramsForTransfer,
+    );
+
+    const transaction = TransactionBuilder.fromXDR(xdr, Networks.TESTNET);
 
     // Sign the transaction
     transaction.sign(funderKeypair);
 
     // Submit the transaction
-    const transactionResult = await server.submitTransaction(transaction);
+    const transactionResult = await server
+      .submitTransaction(transaction)
+      .catch(handleHorizonServerError);
     return NextResponse.json(
       { success: true, result: transactionResult },
       { status: 200 },
     );
   } catch (error) {
-    console.error("Error funding SAC:", error);
+    console.error(error);
     return NextResponse.json(
       { error: (error as Error)?.message || "Something went wrong" },
       { status: 500 },
