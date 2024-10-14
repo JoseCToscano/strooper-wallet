@@ -22,8 +22,8 @@ import { useGetSigners } from "~/hooks/useGetSigners";
 import { api } from "~/trpc/react";
 
 function hasEnoughBalance(
-  stroopsAvailable?: number | string,
-  stroopsToTransfer?: number | string,
+  stroopsAvailable: number | string,
+  stroopsToTransfer: number | string,
 ) {
   const balance =
     typeof stroopsAvailable === "string"
