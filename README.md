@@ -29,11 +29,6 @@ Once in Telegram, click **Start** to begin interacting with the bot. The bot wil
 ### 3. Reopen the MiniApp
 After closing the app, you can relaunch it by typing `/start` in the bot’s chat or by clicking the link above.
 
-## Video Demo
-
-Here’s a quick video walkthrough of how the Strooper Bot MiniApp works:
-
-<iframe src="https://www.loom.com/embed/a7b8b0d2dae4435c8463734e7eacf0a7?sid=3e28296e-a2eb-4943-b68a-69a37c2d3bc9" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen style="width:100%; height:400px;"></iframe>
 
 ## Development
 
