@@ -18,15 +18,15 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${GeistSans.variable}`}>
       <head title={metadata.title as string}>
-        <Analytics id="UA-169430462-1" />
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <meta name="description" content={metadata.description} />
+        <meta name="description" content={metadata.description!} />
       </head>
       <body>
         <TRPCReactProvider>
           <ToasterProvider />
           {children}
+          <Analytics />
         </TRPCReactProvider>
       </body>
     </html>
