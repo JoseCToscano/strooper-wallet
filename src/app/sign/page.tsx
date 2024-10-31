@@ -65,7 +65,13 @@ export default function SignTransaction() {
   }, [contractId]);
 
   if (showSuccess && amount && address) {
-    return <TransactionConfirmation amount={amount} recipient={address} />;
+    return (
+      <TransactionConfirmation
+        amount={amount}
+        recipient={address}
+        sender={String(contractId)}
+      />
+    );
   }
 
   return (

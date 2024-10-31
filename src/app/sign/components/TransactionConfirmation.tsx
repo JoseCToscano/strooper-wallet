@@ -1,18 +1,20 @@
+import { type FC } from "react";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { CheckCircle, ArrowLeft, ExternalLink } from "lucide-react";
 import { shortStellarAddress } from "~/lib/utils";
 import Image from "next/image";
-import { FC } from "react";
 
 interface TransactionConfirmationProps {
   amount: string;
   recipient: string;
+  sender: string;
 }
 
 const TransactionConfirmation: FC<TransactionConfirmationProps> = ({
   amount,
   recipient,
+  sender,
 }) => {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-zinc-100 p-4">
@@ -57,7 +59,11 @@ const TransactionConfirmation: FC<TransactionConfirmationProps> = ({
 
           <div className="flex flex-col space-y-4">
             <Button
-              onClick={() => window.location.reload()}
+              onClick={() =>
+                window.open(
+                  `https://stellar.expert/explorer/testnet/contract/${sender}`,
+                )
+              }
               className="bg-zinc-800 py-2 text-sm text-white transition-colors duration-300 hover:bg-zinc-900"
             >
               <ExternalLink className="mr-2 h-4 w-4" />
