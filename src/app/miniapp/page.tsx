@@ -9,6 +9,9 @@ import LoadingDots from "~/components/icons/loading-dots";
 import { StrooperWallet } from "~/app/_components/StrooperWallet";
 import Image from "next/image";
 import { useContractStore } from "~/hooks/stores/useContractStore";
+import dayjs from "dayjs";
+
+dayjs.extend(relativeTime);
 
 export default function Home() {
   const [isTelegramAppReady, setIsTelegramAppReady] = useState<boolean>(false);
