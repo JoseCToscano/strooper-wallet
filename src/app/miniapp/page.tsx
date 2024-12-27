@@ -10,6 +10,7 @@ import { StrooperWallet } from "~/app/_components/StrooperWallet";
 import Image from "next/image";
 import { useContractStore } from "~/hooks/stores/useContractStore";
 import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
 
 dayjs.extend(relativeTime);
 
